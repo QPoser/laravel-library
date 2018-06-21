@@ -15,3 +15,21 @@
     <li>composer require barryvdh/laravel-ide-helper --dev</li>
 </ul>
 
+<hr>
+
+<h3>Старт проекта</h3>
+<div>
+    <p><b>Настройка ide-helper:</b></p>
+    <p>Для автоматической генерации phpDoc для фасадов Laravel нужно прописать:</p>
+    <p><pre>"scripts":{
+            "post-update-cmd": [
+                "Illuminate\\Foundation\\ComposerScripts::postUpdate",
+                "php artisan ide-helper:generate",
+                "php artisan ide-helper:meta"
+            ]
+        }</pre></p>
+    <p>Затем нужно скопировать из папки vendor/barryvdh/laravel-ide-helper/config файл ide-helper.php в свою папку config, и в нем изменить строку</p>
+    <p><pre>'include_fluent' => true</pre></p>
+    <p>После этого выполните команду php artisan ide-helper:generate</p>    
+    <p><b>Для проверки результата, зайдите в файл routes/web.php, и проверьте что PhpStorm не ругается, что класс Route отсутствует</b></p>    
+</div>
