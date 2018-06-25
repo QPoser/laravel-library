@@ -132,7 +132,7 @@
 
 <h4>Пользователи</h4>
 
-<p><b>Авторизация/Регистрацией</b></p>
+<p><b>Авторизация/Регистрация</b></p>
 
 <p>Для создания базовой авторизации и регистрации нужно выполнить команду</p>
 <pre>php artisan make:auth</pre>
@@ -369,6 +369,56 @@ class RegisterRequest extends FormRequest
 Проверить какие пути доступны в нашей системе можно с помощью команды
 <pre>php artisan route:list</pre></p>
 
+<hr>
+
+<b>Личный кабинет</b>
+
+<p>Для создания личного кабинета, нам нужно прежде всего создать его контроллер, поэтому создаём новый контроллер:</p>
+<pre>php artisan make:controller "Cabinet\HomeController"</pre>
+<p>Первым делом, мы должны были бы закрыть этот контроллер от незарегистрированных пользователей, для этого добавим посредника в конструктор:</p>
+<pre>
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+</pre>
+<p>После этого добавим ещё один контроллер для профиля:</p>
+<pre>php artisan make:controller "Cabinet\ProfileController"</pre>
+<p>Закроем его аналогичным посредником в конструкторе, как и в прошлом контроллере. После чего добавим три метода - index(), 
+edit(), update().</p>
+
+<p>Но контроллеры не активны по-умолчанию, как например в Yii2, для их работы нам нужно указать их пути в файле routes/web.php, и тут 
+можно описать каждый путь отдельно, например так:</p>
+<pre>
+    Route::get('/cabinet', 'Cabinet\HomeController@index')->name('cabinet.home');
+    Route::get('/cabinet/profile', 'Cabinet\ProfileController@index')->name('cabinet.profile.home');
+    Route::get('/cabinet/profile/edit', 'Cabinet\ProfileController@edit')->name('cabinet.profile.edit');
+    Route::put('/cabinet/profile/update', 'Cabinet\ProfileController@update')->name('cabinet.profile.update');
+</pre>
+<p>Но в таком случае приходится каждый раз прописывать префиксы в названии и пути, а также указывать неймспейс и прописывать посредников, 
+поэтому можно объединить данные пути в группу:</p>
+<pre>
+    Route::group(
+        [
+            'prefix' => 'cabinet',
+            'as' => 'cabinet.',
+            'namespace' => 'Cabinet',
+            'middleware' => ['auth'],
+        ],
+        function () {
+            Route::get('/', 'HomeController@index')->name('home');
+            Route::group(['prefix' => 'profile', 'as' => 'profile.'], function () {
+                Route::get('/', 'ProfileController@index')->name('home');
+                Route::get('/edit', 'ProfileController@edit')->name('edit');
+                Route::put('/update', 'ProfileController@update')->name('update');
+            });    
+        }
+    );
+</pre>
+<p>Это будут эквивалентные записи, но во втором случае если нам нужно будет поменять префикс или неймспейс - мы можем поменять его в одном месте. 
+Также во втором случае мы закрываем все пути посредником auth, и теперь их не нужно прописывать в конструкторе контроллеров.</p>
+<p>Далее нам нужно добавить редактирование личных данных. Сделаем возможность поменять имя. Для этого нам нужно написать вручную шаблон для формы ввода, 
+так как в laravel отсутствуют построители форм как в Yii2.</p>
 
 
 
