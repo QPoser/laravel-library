@@ -4,6 +4,7 @@ namespace App\Entities\Library;
 
 use App\Entities\Library\Book\Author;
 use App\Entities\Library\Book\Genre;
+use App\Entities\Library\Book\Review;
 use App\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -56,6 +57,11 @@ class Book extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'book_id', 'id');
     }
 
     public function scopeForUser(Builder $query, User $user)

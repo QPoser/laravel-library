@@ -26,6 +26,6 @@ class Genre extends Model
 
     public function books()
     {
-        return $this->hasMany(Book::class, 'id', 'genre_id');
+        return $this->hasMany(Book::class, 'genre_id', 'id');
     }
 }

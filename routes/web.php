@@ -46,5 +46,6 @@ Route::group(
     function () {
         Route::get('/', 'BookController@index')->name('books.home');
         Route::get('/{book}', 'BookController@show')->name('books.show');
+        Route::post('/{book}/review', 'Book\ReviewController@store')->name('books.review.add');
     }
 );

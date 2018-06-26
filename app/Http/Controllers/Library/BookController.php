@@ -20,6 +20,21 @@ class BookController extends Controller
     {
         $user = Auth::user();
 
-        return view('library.books.show', compact('book', 'user'));
+        $stars = Book\Review::starsList();
+
+        $reviews = Book\Review::where(['book_id' => $book->id])->get();
+        $starsCount = 0;
+
+        foreach ($reviews as $review) {
+            $starsCount += $review->stars;
+        }
+
+        $bookStars = 0;
+
+        if ($starsCount > 0) {
+            $bookStars = $starsCount / $reviews->count();
+        }
+
+        return view('library.books.show', compact('book', 'user', 'stars', 'bookStars'));
     }
 }
