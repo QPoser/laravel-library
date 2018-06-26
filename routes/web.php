@@ -1,8 +1,6 @@
 <?php
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'Library\BookController@index')->name('library.books.home');
 
 Route::get('/verify/{token}', 'Auth\RegisterController@verify')->name('register.verify');
 
@@ -26,5 +24,27 @@ Route::group(
             Route::put('/update', 'ProfileController@update')->name('update');
         });
 
+        Route::group(['prefix' => 'books', 'as' => 'books.'], function () {
+            Route::get('/', 'BookController@index')->name('home');
+            Route::get('/edit/{book}', 'BookController@edit')->name('edit');
+            Route::put('/edit/{book}', 'BookController@update')->name('update');
+            Route::get('/create', 'BookController@create')->name('create');
+            Route::post('/store', 'BookController@store')->name('store');
+            Route::post('/remove/{book}', 'BookController@destroy')->name('remove');
+            Route::get('/{book}', 'BookController@show')->name('show');
+        });
+
+    }
+);
+
+Route::group(
+    [
+        'prefix' => 'books',
+        'as' => 'library.',
+        'namespace' => 'Library',
+    ],
+    function () {
+        Route::get('/', 'BookController@index')->name('books.home');
+        Route::get('/{book}', 'BookController@show')->name('books.show');
     }
 );

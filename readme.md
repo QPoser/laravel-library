@@ -531,6 +531,90 @@ storage/app/public, и разместить её в папке public/storage. �
 <p>Теперь, для того, чтобы ограничить определенные контроллеры от юзеров, и дать доступ только администраторам - вы можете добавить посредника can:admin, например:</p>
 <pre>$this->middleware('can:admin');</pre>
 <hr>
+<h2>Книги</h2>
+<p>Следующий этап - сделать саму онлайн-библиотеку, для этого нам нужны сами книги. 
+Начнём с модели, для начала нам нужно создать миграцию с определенными полями, которые её описывают, например:</p>
+<b>Команда:</b>
+<pre>
+php artisan make:migration create_books_table --create=books
+</pre>
+<b>Миграция:</b>
+<pre>
+    public function up()
+    {
+        // Создаём таблицу авторов
+        Schema::create('books_authors', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('status');
+            $table->timestamps();
+        });
+        // Создаём таблицу жанров
+        Schema::create('books_genres', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('status');
+            $table->timestamps();
+        });
+        // Создаём таблицу книг
+        Schema::create('books', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title');
+            $table->string('description');
+            $table->string('file_path');
+            $table->string('status');
+            $table->integer('genre_id')->references('id')->on('books_genres')->onDelete('RESTRICT');
+            $table->integer('author_id')->references('id')->on('books_authors')->onDelete('RESTRICT');
+            $table->integer('user_id')->references('id')->on('users')->onDelete('CASCADE');
+            $table->timestamps();
+        });
+    }
+    // Удаляем все таблицы при откате
+    public function down()
+    {
+        Schema::dropIfExists('books');
+        Schema::dropIfExists('books_genres');
+        Schema::dropIfExists('books_authors');
+    }
+</pre>
+
+<p>После этого создайте модели жанра, автора и книги:</p>
+<pre>
+    php artisan make:model "Entities\Library\Book"
+    php artisan make:model "Entities\Library\Book\Genre"
+    php artisan make:model "Entities\Library\Book\Author"
+</pre>
+<p>На данном этапе просто заполняем статусы, пишем поля моделей, и делаем связи. Связи в laravel делаются следующим образом:</p>
+<pre>
+        //  Получить жанр по genre_id класса Book
+        public function genre()
+        {
+            return $this->belongsTo(Genre::class, 'genre_id', 'id');
+        }
+        //  Получить автора по author_id класса Book
+        public function author()
+        {
+            return $this->belongsTo(Author::class, 'author_id', 'id');
+        }
+        // Получить пользователя по user_id
+        public function user()
+        {
+            return $this->belongsTo(User::class, 'user_id', 'id');
+        }
+</pre>
+<p>Связи belongsTo() позволяют найти один объект со связью один-к-одному. Если же вы хотите найти связь один-ко-многим, используйте функцию hasMany():</p>
+<pre>
+    public function books()
+    {
+        // Поиск книг, которые находятся в текущем жанре/авторе
+        return $this->hasMany(Book::class, 'id', 'author_id');
+    }
+</pre>
+<p>Потом нужно создать контроллер для книг в личном кабинете, и сделать контроллер для публичной части.
+Также нужно сделать дополнительный Gate для того, чтоб пользователь мог работать только со своими книгами в личном кабинете. После этого 
+нужно написать свои шаблоны для представления, и добавить пути в файл web.php.</p>
+
+
 
 
 

@@ -39,6 +39,7 @@ class User extends Authenticatable
             'password' => bcrypt($password),
             'verify_code' => Str::uuid(),
             'status' => self::STATUS_WAIT,
+            'role' => self::ROLE_USER,
         ]);
     }
 
