@@ -628,6 +628,52 @@ php artisan make:migration create_books_table --create=books
 </pre>
 <p>После этого создаём контроллер для создания отзыва. После этого нужно не забыть сделать связь в классе Book на сами отзывы Review.
 После этого делаем форму на странице просмотра книги с отзывами. На этом система рецензий завершена, останется только посчитать среднее арифметическое от всех отзывов для книги.</p>
+<hr>
+<b>Budnle для книг, с возможностью группировки.</b>
+<p>Для того, чтоб сделать бандл для книг, нам нужна сущность бандла, которая может содержать в себе книги по связи многие-ко-многим. Для этого нужно 
+начать с миграции, в которой создать таблицу для самих бандлов, и связующую таблицу books_tables_assignments:</p>
+<pre>
+        // Создаём таблицу для бандлов
+        Schema::create('books_bundles', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title');
+            $table->string('description');
+            $table->integer('user_id')->references('id')->on('users')->onDelete('CASCADE');
+            $table->timestamps();
+        });
+        // Создаём связующую таблицу
+        Schema::create('books_bundles_assignments', function (Blueprint $table) {
+            $table->integer('bundle_id')->references('id')->on('books_bundle')->onDelete('CASCADE');
+            $table->integer('book_id')->references('id')->on('books')->onDelete('CASCADE');
+            $table->primary(['bundle_id', 'book_id']);
+        });
+</pre>
+<p>После этого по привычной схеме настраиваем контроллер в кабинете, переписываем шаблоны под новую сущность и обновляем web.php. 
+После этого появляется вопрос, как производится связь бандла с книгами через связующую таблицу? -Данный вопрос решается с помощью метода belongsToMany, и выглядит он 
+следующим образом:</p>
+<pre>
+        public function books()
+        {
+            return $this->belongsToMany(Book::class, 'books_bundles_assignments', 'bundle_id', 'book_id');
+        }
+</pre>
+<p>На базе данной связи можно сделать и добавление\удаление книг из бандла следующим образом:</p>
+<pre>
+        // Добавляем в бандл книгу по ID
+        public function addToBundle($id): void
+        {
+            if ($this->hasInBundle($id)) {
+                throw new \DomainException('This book is already added to bundle.');
+            }
+            $this->books()->attach($id);
+        }
+        // Удаляем книгу из бандла по ID
+        public function removeFromBundle($id): void
+        {
+            $this->books()->detach($id);
+        }
+</pre>
+<p>После этого останется только создать контроллер в публичной части, и вывести там наши бандлы.</p>
 
 
 

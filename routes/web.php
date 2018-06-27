@@ -24,6 +24,16 @@ Route::group(
             Route::put('/update', 'ProfileController@update')->name('update');
         });
 
+        Route::group(['prefix' => 'bundles', 'as' => 'bundles.'], function () {
+            Route::get('/', 'BundleController@index')->name('home');
+            Route::get('/show/{bundle}', 'BundleController@show')->name('show');
+            Route::get('/create', 'BundleController@create')->name('create');
+            Route::post('/store', 'BundleController@store')->name('store');
+            Route::post('/add/{bundle}/{book}', 'BundleController@addToBundle')->name('add-book');
+            Route::post('/remove/{bundle}/{book}', 'BundleController@removeFromBundle')->name('remove-book');
+            Route::post('/remove/{bundle}', 'BundleController@destroy')->name('remove');
+        });
+
         Route::group(['prefix' => 'books', 'as' => 'books.'], function () {
             Route::get('/', 'BookController@index')->name('home');
             Route::get('/edit/{book}', 'BookController@edit')->name('edit');
@@ -47,5 +57,17 @@ Route::group(
         Route::get('/', 'BookController@index')->name('books.home');
         Route::get('/{book}', 'BookController@show')->name('books.show');
         Route::post('/{book}/review', 'Book\ReviewController@store')->name('books.review.add');
+    }
+);
+
+Route::group(
+    [
+        'prefix' => 'bundles',
+        'as' => 'library.',
+        'namespace' => 'Library',
+    ],
+    function () {
+        Route::get('/', 'BundleController@index')->name('bundles.home');
+        Route::get('/{bundle}', 'BundleController@show')->name('bundles.show');
     }
 );

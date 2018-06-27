@@ -12,6 +12,14 @@
             <hr>
         @endforeach
     @else
-        2
+        <p>No books.</p>
+    @endif
+    @if(!$bundles->isEmpty())
+        <br>
+        <h2>Bundles</h2>
+        <hr>
+        @foreach($bundles as $bundle)
+            <strong><a href="{{ route('library.bundles.show', $bundle) }}">{{ $bundle->title }}</a></strong>
+        @endforeach
     @endif
 @endsection

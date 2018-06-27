@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Library;
 
 use App\Entities\Library\Book;
+use App\Entities\Library\Book\Bundle;
 use Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -13,7 +14,9 @@ class BookController extends Controller
     {
         $books = Book::all();
 
-        return view('library.books.index', compact('books'));
+        $bundles = Bundle::all();
+
+        return view('library.books.index', compact('books', 'bundles'));
     }
 
     public function show(Book $book)

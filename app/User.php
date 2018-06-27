@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Entities\Library\Book;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Str;
@@ -78,5 +79,15 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function books()
+    {
+        return $this->hasMany(Book::class, 'user_id', 'id');
+    }
+
+    public function bundles()
+    {
+        return $this->hasMany(Book\Bundle::class, 'user_id', 'id');
     }
 }
