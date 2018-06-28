@@ -3,20 +3,39 @@
 namespace App\Http\Controllers\Library;
 
 use App\Entities\Library\Book;
+use App\Entities\Library\Book\Author;
 use App\Entities\Library\Book\Bundle;
+use App\Entities\Library\Book\Genre;
 use Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::all();
+        $query = Book::orderByDesc('id');
+
+        if (!empty($value = $request->get('search'))) {
+            $query->where('title', 'like', '%' . $value . '%');
+        }
+
+        if (!empty($value = $request->get('genre'))) {
+            $query->where('genre_id', $value);
+        }
+
+        if (!empty($value = $request->get('author'))) {
+            $query->where('author_id', $value);
+        }
+
+        $books = $query->paginate(20);
+
+        $genres = Genre::all();
+        $authors = Author::all();
 
         $bundles = Bundle::all();
 
-        return view('library.books.index', compact('books', 'bundles'));
+        return view('library.books.index', compact('books', 'bundles', 'genres', 'authors'));
     }
 
     public function show(Book $book)
