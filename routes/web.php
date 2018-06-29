@@ -22,6 +22,8 @@ Route::group(
             Route::get('/', 'ProfileController@index')->name('home');
             Route::get('/edit', 'ProfileController@edit')->name('edit');
             Route::put('/update', 'ProfileController@update')->name('update');
+            Route::post('/become-writer', 'ProfileController@becomeWriter')->name('become_writer');
+            Route::post('/become-not-writer', 'ProfileController@becomeNotWriter')->name('become_not_writer');
         });
 
         Route::group(['prefix' => 'bundles', 'as' => 'bundles.'], function () {
@@ -71,3 +73,7 @@ Route::group(
         Route::get('/{bundle}', 'BundleController@show')->name('bundles.show');
     }
 );
+
+Route::get('/users/{user}', 'Library\UserController@show')->name('library.users.show');
+Route::post('/users/subscribe/{writer}/{subscriber}', 'Library\UserController@subscribe')->name('library.users.subscribe');
+Route::post('/users/unsubscribe/{writer}/{subscriber}', 'Library\UserController@unsubscribe')->name('library.users.unsubscribe');

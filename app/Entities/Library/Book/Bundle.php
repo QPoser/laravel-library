@@ -3,6 +3,7 @@
 namespace App\Entities\Library\Book;
 
 use App\Entities\Library\Book;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Bundle extends Model
@@ -43,5 +44,10 @@ class Bundle extends Model
     public function books()
     {
         return $this->belongsToMany(Book::class, 'books_bundles_assignment', 'bundle_id', 'book_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

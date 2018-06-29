@@ -22,13 +22,14 @@
     <li><a href="#books_view">Просмотр книг, с поиском и фильтрацией.</a></li>
     <li><a href="#reviews">Система рецензий для книг</a></li>
     <li><a href="#bundles">Bundle для книг, возможность группировки книг</a></li>
-    <li>Реализация площадки для независимых писателей, с возможностью подписки и поддержки.</li>
+    <li><a href="#independent_writers">Реализация площадки для независимых писателей, с возможностью подписки и поддержки.</a></li>
     <li><b>Дополнительные моменты</b></li>
     <li>Обращения к модераторам, блокировка нежелательного контента</li>
     <li>Хлебные крошки</li>
     <li>Усовершенствованный поиск с использованием ElasticSearch</li>
     <li>Тестирование кода</li>
     <li>Пагинация</li>
+    <li>Оповещение пользователей о новой книге/бандле от независимого разработчика (Работа с событиями).</li>
     <li>Что выяснится по ходу разработки...</li>
     <li><b>API для работы с онлайн-библиотекой (планируется)</b></li>
 </ul>
@@ -721,6 +722,83 @@ scopeActive(), и использовать его:</p>
     $genres = Genre::active()->get();
     $authors = Author::active()->get();
 </pre>
+<b id="independent_writers">Реализация площадки для независимых писателей, с возможностью подписки и поддержки.</b>
+<p>Для данного функционала можно создать ещё одну роль для пользователей, и назвать её writer. Но такой подход не является правильным, так
+как в таком случае например администратор не сможет являться писателем. Поэтому мы сделаем миграцию, в которой добавляем поле is_writer в таблицу Users и создаём 
+таблицу writers_subscribers, в которой делаем связь writer_id и subscriber_id, которые имеют внешний ключ на id в таблице users:</p>
+<pre>
+        public function up()
+        {
+            Schema::table('users', function (Blueprint $table) {
+               $table->smallInteger('is_writer');
+            });
+            Schema::create('writers_subscribers', function (Blueprint $table) {
+                $table->integer('writer_id')->references('id')->on('users')->onDelete('CASCADE');
+                $table->integer('subscriber_id')->references('id')->on('users')->onDelete('CASCADE');
+                $table->primary(['writer_id', 'subscriber_id']);
+            });
+        }
+        public function down()
+        {
+            Schema::table('users', function(Blueprint $table) {
+               $table->dropColumn('is_writer');
+            });
+            Schema::dropIfExists('writers_subscribes');
+        }
+</pre>
+<p>После этого нам нужно сделать связь с данной таблицей в классе User:</p>
+<pre>
+        // Подписываем пользователя
+        public function subscribe(int $id)
+        {
+            $this->defendWriter();
+            if ($this->hasInSubscribers($id)) {
+                throw new \DomainException('This user is already signed up');
+            }
+            $this->subscribers()->attach($id);
+        }
+        // Отписываем пользователя
+        public function unsubscribe(int $id)
+        {
+            $this->defendWriter();
+            $this->subscribers()->detach($id);
+        }
+        // Проверяем есть ли в подписчиках
+        public function hasInSubscribers(int $id)
+        {
+            $this->defendWriter();
+            return $this->subscribers()->where('id', $id)->exists();
+        }
+        // Связь с таблицей writers_subscribers
+        public function subscribers()
+        {
+            $this->defendWriter();
+            return $this->belongsToMany(self::class, 'writers_subscribers', 'writer_id', 'subscriber_id');
+        }
+        // Выбрасываем исключение, если пользователь не является писателем.
+        public function defendWriter()
+        {
+            if (!$this->isWriter()) {
+                throw new \DomainException('This user is not writer');
+            }
+        }
+</pre>
+<p>Также тут появляется такой момент, который часто встречается в приложениях - поле is_writer имеет тип smallint, но в приложении 
+нам нужно сделать так, чтобы поле is_writer было типа boolean. Для этого в laravel, в любой модели есть переменная $casts, в которой
+нужно следующим образом определить там переменную is_writer:</p>
+<pre>
+        protected $casts = [
+            'is_writer' => 'boolean',
+        ];
+</pre>
+<p>После этого останется только определить контроллер в публичной части для просмотра страницы пользователя, сделать там форму 
+с помощью которой отправлять запрос на сервер для того, чтобы подписаться или отписаться от пользователя. И добавить два метода в Cabinet\ProfileController
+для того чтобы можно было стать автором, или перестать быть автором. После этого нужно определить пути в файле routes/web.php.
+На этом данный модуль будет готов.</p>
+<p><b>Note:</b> Эта реализация подразумевает систему для независимых писателей, на которых можно подписаться. Для того, чтобы например 
+осведомлять подписчиков о новой книге или бандле, вы можете сделать своё событие на базе этой системе. Например вы можете взять всех подписчиков при добавлении 
+книги, и отправить им сообщение на почту. Подробнее работу с событиями я рассмотрю в дополнительных моментах.</p>
+
 
 
 

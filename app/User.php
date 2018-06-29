@@ -25,11 +25,15 @@ class User extends Authenticatable
     use Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'status', 'verify_code', 'personal_photo', 'role',
+        'name', 'email', 'password', 'status', 'verify_code', 'personal_photo', 'role', 'is_writer',
     ];
 
     protected $hidden = [
         'password', 'remember_token',
+    ];
+
+    protected $casts = [
+        'is_writer' => 'boolean',
     ];
 
     public static function register(string $name, string $email, string $password): self
@@ -67,7 +71,7 @@ class User extends Authenticatable
 
     public function changeRole($role): void
     {
-        if (!\in_array($role, [self::ROLE_USER, self::ROLE_ADMIN], true)) {
+        if (!\in_array($role, self::getRoles(), true)) {
             throw new \InvalidArgumentException('Undefined role "' . $role . '"');
         }
         if ($this->role === $role) {
@@ -76,9 +80,36 @@ class User extends Authenticatable
         $this->update(['role' => $role]);
     }
 
+    public static function getRoles()
+    {
+        return [
+            self::ROLE_ADMIN,
+            self::ROLE_USER,
+        ];
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isWriter(): bool
+    {
+        return $this->is_writer;
+    }
+
+    public function becomeWriter()
+    {
+        $this->update(
+            ['is_writer' => true]
+        );
+    }
+
+    public function becomeNotWriter()
+    {
+        $this->update(
+            ['is_writer' => false]
+        );
     }
 
     public function books()
@@ -89,5 +120,39 @@ class User extends Authenticatable
     public function bundles()
     {
         return $this->hasMany(Book\Bundle::class, 'user_id', 'id');
+    }
+
+    public function subscribe(int $id)
+    {
+        $this->defendWriter();
+        if ($this->hasInSubscribers($id)) {
+            throw new \DomainException('This user is already signed up');
+        }
+        $this->subscribers()->attach($id);
+    }
+
+    public function unsubscribe(int $id)
+    {
+        $this->defendWriter();
+        $this->subscribers()->detach($id);
+    }
+
+    public function hasInSubscribers(int $id)
+    {
+        $this->defendWriter();
+        return $this->subscribers()->where('id', $id)->exists();
+    }
+
+    public function subscribers()
+    {
+        $this->defendWriter();
+        return $this->belongsToMany(self::class, 'writers_subscribers', 'writer_id', 'subscriber_id');
+    }
+
+    public function defendWriter()
+    {
+        if (!$this->isWriter()) {
+            throw new \DomainException('This user is not writer');
+        }
     }
 }

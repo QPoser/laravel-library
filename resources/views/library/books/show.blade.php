@@ -7,6 +7,7 @@
     @endif
     <p>Genre: {{ $book->genre->name }}</p>
     <p>Author: {{ $book->author->name }}</p>
+    <p>User: <a href="{{ route('library.users.show', $book->user) }}">{{ $book->user->name }}</a></p>
     <p>{{ $book->description }}</p>
     <a href="{{ asset('storage/' . $book->file_path) }}" class="btn btn-success" download>Download</a>
     <hr>

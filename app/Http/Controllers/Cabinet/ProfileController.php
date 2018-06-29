@@ -42,4 +42,30 @@ class ProfileController extends Controller
 
         return redirect()->route('cabinet.profile.home');
     }
+
+    public function becomeWriter()
+    {
+        $user = Auth::user();
+
+        try {
+            $user->becomeWriter();
+        } catch (\DomainException $e) {
+            return redirect()->route('cabinet.profile.home')->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('cabinet.profile.home')->with('success', 'Now you\'re a writer');
+    }
+
+    public function becomeNotWriter()
+    {
+        $user = Auth::user();
+
+        try {
+            $user->becomeNotWriter();
+        } catch (\DomainException $e) {
+            return redirect()->route('cabinet.profile.home')->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('cabinet.profile.home')->with('success', 'Now you\'re not a writer');
+    }
 }

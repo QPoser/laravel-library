@@ -52,7 +52,7 @@
             <strong><a href="{{ route('library.books.show', $book) }}">{{ $book->title }}</a></strong>
             <p>Genre: {{ $book->genre->name }}</p>
             <p>Author: {{ $book->author->name }}</p>
-            <p>User: {{ $book->user->name }}</p>
+            <p>User: <a href="{{ route('library.users.show', $book->user) }}">{{ $book->user->name }}</a></p>
             <hr>
         @endforeach
     @else
