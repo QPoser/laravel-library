@@ -25,7 +25,10 @@ Route::group(
         Route::post('/genres/{genre}/set_inactive', 'GenreController@setInactive')->name('genres.set-inactive');
 
         Route::resource('books', 'BookController');
-        Route::resource('bundles', 'BundleController');
+        Route::post('/books/{book}/set_active', 'BookController@setActive')->name('books.set-active');
+        Route::post('/books/{book}/set_inactive', 'BookController@setInactive')->name('books.set-inactive');
+
+        // Route::resource('bundles', 'BundleController');
         Route::resource('users', 'UserController');
   }
 );

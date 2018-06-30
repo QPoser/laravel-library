@@ -2,7 +2,7 @@
 
 @section('content')
     @include('admin.users._nav')
-
+    <h2>Create user</h2>
     <form action="{{ route('admin.users.store') }}" method="POST">
         @csrf
 

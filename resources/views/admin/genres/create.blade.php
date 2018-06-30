@@ -2,7 +2,7 @@
 
 @section('content')
     @include('admin.genres._nav')
-
+    <h2>Create genre</h2>
     <form action="{{ route('admin.genres.store') }}" method="POST">
         @csrf
 

@@ -2,7 +2,7 @@
 
 @section('content')
     @include('admin.authors._nav')
-
+    <h2>Create author</h2>
     <form action="{{ route('admin.authors.store') }}" method="POST">
         @csrf
 

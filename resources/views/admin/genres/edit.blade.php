@@ -2,7 +2,7 @@
 
 @section('content')
     @include('admin.genres._nav')
-
+    <h2>Edit genre</h2>
     <form action="{{ route('admin.genres.update', $genre) }}" method="POST">
         @csrf
         @method('PUT')

@@ -2,7 +2,7 @@
 
 @section('content')
     @include('admin.users._nav')
-
+    <h2>Edit user</h2>
     <form action="{{ route('admin.users.update', $user) }}" method="POST">
         @csrf
         @method('PUT')

@@ -31,7 +31,7 @@ class Book extends Model
 
     protected $table = 'books';
 
-    public static function new(string $title, string $description, int $author, int $genre, int $user, string $file_path): self
+    public static function new(string $title, string $description, int $author, int $genre, int $user, string $file_path, bool $isActive = false): self
     {
         return self::create([
            'title' => $title,
@@ -40,7 +40,7 @@ class Book extends Model
            'genre_id' => $genre,
            'user_id' => $user,
            'file_path' => $file_path,
-           'status' => self::STATUS_WAIT,
+           'status' => $isActive ? self::STATUS_ACTIVE : self::STATUS_WAIT,
         ]);
     }
 
@@ -62,6 +62,36 @@ class Book extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class, 'book_id', 'id');
+    }
+
+    public function setActive(): void
+    {
+        if ($this->isActive()) {
+            throw new \DomainException('This book is already active');
+        }
+        $this->update([
+            'status' => self::STATUS_ACTIVE,
+        ]);
+    }
+
+    public function setInactive(): void
+    {
+        if (!$this->isActive()) {
+            throw new \DomainException('This book is already inactive');
+        }
+        $this->update([
+            'status' => self::STATUS_WAIT,
+        ]);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function scopeActive(Builder $query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE);
     }
 
     public function scopeForUser(Builder $query, User $user)

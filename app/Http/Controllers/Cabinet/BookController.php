@@ -45,7 +45,7 @@ class BookController extends Controller
         $this->validate($request, array_merge([
            'title' => 'required|string|max:255|unique:books',
            'description' => 'required|string',
-           'file' => 'mimes:txt,doc,docx,fb2,pdf',
+           'file' => 'required|mimes:txt,doc,docx,fb2,pdf',
         ], $authorValidate, $genreValidate));
 
         if (is_string($request->author)) {

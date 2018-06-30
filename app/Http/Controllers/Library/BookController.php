@@ -14,7 +14,7 @@ class BookController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Book::orderByDesc('id');
+        $query = Book::active()->orderByDesc('id');
 
         if (!empty($value = $request->get('search'))) {
             $query->where('title', 'like', '%' . $value . '%');

@@ -2,7 +2,7 @@
 
 @section('content')
     @include('admin.authors._nav')
-
+    <h2>Edit author</h2>
     <form action="{{ route('admin.authors.update', $author) }}" method="POST">
         @csrf
         @method('PUT')
