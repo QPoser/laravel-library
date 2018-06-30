@@ -36,7 +36,20 @@ class User extends Authenticatable
         'is_writer' => 'boolean',
     ];
 
-    public static function register(string $name, string $email, string $password): self
+    public static function new(string $name, string $email, string $role, bool $isWriter = false)
+    {
+        return static::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => bcrypt('secret'),
+            'verify_code' => Str::uuid(),
+            'status' => self::STATUS_ACTIVE,
+            'role' => $role,
+            'is_writer' => $isWriter,
+        ]);
+    }
+
+    public static function register(string $name, string $email, string $password, bool $isWriter = false): self
     {
         return static::create([
             'name' => $name,
@@ -45,6 +58,7 @@ class User extends Authenticatable
             'verify_code' => Str::uuid(),
             'status' => self::STATUS_WAIT,
             'role' => self::ROLE_USER,
+            'is_writer' => $isWriter,
         ]);
     }
 
@@ -71,7 +85,7 @@ class User extends Authenticatable
 
     public function changeRole($role): void
     {
-        if (!\in_array($role, self::getRoles(), true)) {
+        if (!\in_array($role, self::rolesList(), true)) {
             throw new \InvalidArgumentException('Undefined role "' . $role . '"');
         }
         if ($this->role === $role) {
@@ -80,11 +94,19 @@ class User extends Authenticatable
         $this->update(['role' => $role]);
     }
 
-    public static function getRoles()
+    public static function rolesList()
     {
         return [
             self::ROLE_ADMIN,
             self::ROLE_USER,
+        ];
+    }
+
+    public static function statusesList()
+    {
+        return [
+            self::STATUS_ACTIVE,
+            self::STATUS_WAIT,
         ];
     }
 
