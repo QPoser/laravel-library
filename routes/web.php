@@ -9,6 +9,28 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::group(
+  [
+      'prefix' => 'admin',
+      'as' => 'admin.',
+      'namespace' => 'Admin',
+      'middleware' => ['auth', 'can:admin'],
+  ],
+  function () {
+        Route::resource('authors', 'AuthorController');
+        Route::post('/authors/{author}/set_active', 'AuthorController@setActive')->name('authors.set-active');
+        Route::post('/authors/{author}/set_inactive', 'AuthorController@setInactive')->name('authors.set-inactive');
+
+        Route::resource('genres', 'GenreController');
+        Route::post('/genres/{genre}/set_active', 'GenreController@setActive')->name('genres.set-active');
+        Route::post('/genres/{genre}/set_inactive', 'GenreController@setInactive')->name('genres.set-inactive');
+
+        Route::resource('books', 'BookController');
+        Route::resource('bundles', 'BundleController');
+        Route::resource('users', 'UserController');
+  }
+);
+
+Route::group(
     [
         'prefix' => 'cabinet',
         'as' => 'cabinet.',

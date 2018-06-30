@@ -30,8 +30,8 @@ class BookController extends Controller
 
         $books = $query->paginate(20);
 
-        $genres = Genre::all();
-        $authors = Author::all();
+        $genres = Genre::active()->get();
+        $authors = Author::active()->get();
 
         $bundles = Bundle::all();
 
