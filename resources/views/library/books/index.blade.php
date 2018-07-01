@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('breadcrumbs')
+
+@endsection
+
 @section('content')
     <h1>Books</h1>
     <hr>

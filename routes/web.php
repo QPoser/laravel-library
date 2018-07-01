@@ -16,6 +16,7 @@ Route::group(
       'middleware' => ['auth', 'can:admin'],
   ],
   function () {
+        Route::get('/', 'AdminController@index')->name('home');
         Route::resource('authors', 'AuthorController');
         Route::post('/authors/{author}/set_active', 'AuthorController@setActive')->name('authors.set-active');
         Route::post('/authors/{author}/set_inactive', 'AuthorController@setInactive')->name('authors.set-inactive');

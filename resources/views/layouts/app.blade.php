@@ -60,6 +60,9 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    @if (Auth::user()->isAdmin())
+                                        <a class="dropdown-item" href="{{ route('admin.home') }}">{{ __('Admin') }}</a>
+                                    @endif
                                     <a class="dropdown-item" href="{{ route('cabinet.home') }}">{{ __('Cabinet') }}</a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
@@ -80,6 +83,10 @@
 
         <main class="py-4">
             <div class="container">
+                @section('breadcrumbs', Breadcrumbs::render())
+
+                @yield('breadcrumbs')
+
                 @include('layouts.partials.flash')
 
                 @yield('content')
