@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
-use PharIo\Manifest\Application;
 
 class SearchServiceProvider extends ServiceProvider
 {
