@@ -25,8 +25,8 @@
     <li><a href="#independent_writers">Реализация площадки для независимых писателей, с возможностью подписки и поддержки.</a></li>
     <li><a href="#additionals"><b>Дополнительные моменты</b></a></li>
     <li><a href="#breadcrumbs">Хлебные крошки</a></li>
+    <li><a href="#elasticsearch">Усовершенствованный поиск с использованием ElasticSearch</a></li>
     <li>Обращения к модераторам, блокировка нежелательного контента</li>
-    <li>Усовершенствованный поиск с использованием ElasticSearch</li>
     <li>Тестирование кода</li>
     <li>Пагинация</li>
     <li>Оповещение пользователей о новой книге/бандле от независимого разработчика (Работа с событиями).</li>
@@ -973,7 +973,232 @@ breadcrumbs, и добавить её в главный layout:</p>
 </pre>
 <p><b>Шаг третий:</b> теперь нам осталось только убрать хлебные крошки на главной странице. Для этого вам нужно просто добавить в шаблоне главной страницы
 секцию breadcrumbs, и оставить её пустой, в таком случае выведется именно она.</p>
-
+<hr>
+<b id="elasticsearch">Усовершенствованный поиск с использованием ElasticSearch</b>
+<p>Для поиска с помощью elasticsearch, добавим сначала elasticsearch в docker. Для этого добавим в docker-compose следующие строки:</p>
+<pre>
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./storage/docker/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - "9201:9200"
+</pre>
+<p>После этого перед запуском docker-compose up --build, мы должны увеличить память для нашей виртуальной машины, для этого выполните 
+команду в консоли:</p>
+<pre>sudo sysctl -w vm.max_map_count=262144</pre>
+<p>После этого нужно добавить линк на elasticsearch в php-fpm и php-cli, и можно запускать docker-compose с флагом --build.</p>
+<p>Теперь добавьте в .env файл строчку:</p>
+<pre>ELASTICSEARCH_HOSTS=127.0.0.1:9201</pre>
+<p>И добавим файл config/elasticsearch.php следующего вида:</p>
+<pre>
+return [
+    'hosts' => explode(',', env('ELASTICSEARCH_HOSTS')),
+    'retries' => 1,
+];
+</pre>
+<p>Теперь можно создать провайдер SearchServiceProvider, и добавить его в config/app.php к остальным провайдерам.
+Сам же провайдер должен быть следующим:</p>
+<pre>
+use Elasticsearch\Client;
+use Elasticsearch\ClientBuilder;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\ServiceProvider;
+class SearchServiceProvider extends ServiceProvider
+{
+    public function register()
+    {
+        $this->app->singleton(Client::class, function(Application $app) {
+            $config = $app->make('config')->get('elasticsearch'); //  config/elasticsearch.php
+            return ClientBuilder::create()
+                ->setHosts($config['hosts'])    // Задаём хост 127.0.0.1:9201
+                ->setRetries($config['retries'])
+                ->build();
+        });
+    }
+}
+</pre>
+<p>Следующий шаг - создание двух консольных команд InitCommand и ReindexCommand:</p>
+<pre>php artisan make:command "Search\InitCommand"</pre>
+<pre>php artisan make:command "Search\ReindexCommand"</pre>
+<p>В InitCommand нужно принять в конструкторе клиент Elasticsearch\Client, который подтянется через контейнер внедрения зависимостей, а
+определен он в провайдере, который мы написали раньше. И напишем следующий обработчик:</p>
+<pre>
+        try {
+            $this->client->indices()->delete([ // Удаляем индекс с названием app.
+                'index' => 'app',
+            ]);
+        } catch (Missing404Exception $e) {}
+        $this->client->indices()->create([      // Создаём индекс именем app
+            'index' => 'app',                   // Название индекса
+            'body' => [                         // Тело индекса
+                'mappings' => [                 // Карта сущностей
+                    'book' => [                 // Название сущности
+                        '_source' => [          // Включение этого параметра сохранит весь документ JSON в индексе, и при необходимости можно вернуть только определенные поля.
+                            'enabled' => true,
+                        ],
+                        'properties' => [       // Свойства
+                            'id' => [
+                                'type' => 'integer',
+                            ],
+                            'published_at' => [
+                                'type' => 'date',
+                            ],
+                            'title' => [
+                                'type' => 'text',
+                            ],
+                            'description' => [
+                                'type' => 'text',
+                            ],
+                            'genre' => [
+                                'type' => 'integer',
+                            ],
+                            'author' => [
+                                'type' => 'integer',
+                            ],
+                            'status' => [
+                                'type' => 'keyword',  // Тип keyword означает строку-ключ, поиск по данному полю не будет производится.
+                            ],
+                        ],
+                    ],
+                ],                      // Настройки для поиска
+                'settings' => [
+                    'analysis' => [
+                        'char_filter' => [
+                            'replace' => [
+                                'type' => 'mapping',
+                                'mappings' => [
+                                    '&=> and '
+                                ],
+                            ],
+                        ],
+                        'filter' => [
+                            'word_delimiter' => [
+                                'type' => 'word_delimiter',
+                                'split_on_numerics' => false,
+                                'split_on_case_change' => true,
+                                'generate_word_parts' => true,
+                                'generate_number_parts' => true,
+                                'catenate_all' => true,
+                                'preserve_original' => true,
+                                'catenate_numbers' => true,
+                            ],
+                            'trigrams' => [
+                                'type' => 'ngram',
+                                'min_gram' => 4,
+                                'max_gram' => 6,
+                            ],
+                        ],
+                        'analyzer' => [
+                            'default' => [
+                                'type' => 'custom',
+                                'char_filter' => [
+                                    'html_strip',
+                                    'replace',
+                                ],
+                                'tokenizer' => 'whitespace',
+                                'filter' => [
+                                    'lowercase',
+                                    'word_delimiter',
+                                    'trigrams',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+</pre>
+<p>Это позволит нам создать нужные настройки поиска, и поля для индексации. После этого нам нужно проиндексировать наши книги. 
+Для этого у нас будет следующая команда - ReindexCommand. В ней мы возьмём все активные книги, и проиндексируем их с помощью следующей функции:</p>
+<pre>
+            $this->client->index([  // Elasticsearch\Client
+                'index' => 'app',
+                'type' => 'book',
+                'id' => $book->id,
+                'body' => [
+                    'id' => $book->id,
+                    'published_at' => $book->published_at ? $book->published_at->format(DATE_ATOM) : null,
+                    'title' => $book->title,
+                    'description' => $book->description,
+                    'status' => $book->status,
+                    'genre' => $book->genre_id,
+                    'author' => $book->author_id,
+                ],
+            ]);
+</pre>
+<p>Данную функцию можно вынести в отдельный сервис BookIndexer.</p>
+<p>Теперь нам осталось изменить наш контроллер, и заменить наш поиск на поиск с помощью elasticsearch:</p>
+<pre>
+    $books = $this->search->search($request, 20, $request->get('page', 1));
+</pre>
+<p>Где search - это сервис SearchService, который содержит следующую функцию search:</p>
+<pre>
+    public function search(Request $request, int $perPage, int $page): Paginator  // Illuminate\Contracts\Pagination\Paginator
+        {
+            $author = null;
+            $genre = null;
+            // Если в реквесте есть автор, получаем его
+            if ($request['author']) {
+                $author = Author::findOrFail($request['author']);
+            }
+            // Если в реквесте есть жанр, получаем его
+            if ($request['genre']) {
+                $genre = Genre::findOrFail($request['genre']);
+            }
+            // Получаем ответ от elasticsearch, передавая в неё наш запрос
+            $response = $this->client->search([
+                'index' => 'app',
+                'type' => 'book',
+                'body' => [
+                    '_source' => ['id'],    // Поле, которое мы хотим получить в ответе.
+                    'from' => ($page - 1) * $perPage,
+                    'size' => $perPage,
+                    'sort' => [],
+                    'query' => [    // Конфигурация нашего запроса в зависимости от реквеста
+                        'bool' => [
+                            'must' => array_merge(
+                                [
+                                    ['term' => ['status' => Book::STATUS_ACTIVE]]
+                                ],
+                                array_filter([
+                                    $author ? ['term' => ['author' => $author->id]] : false,
+                                    $genre ? ['term' => ['genre' => $genre->id]] : false,
+                                    !empty($request['search']) ? ['multi_match' => [
+                                        'query' => $request['search'],
+                                        'fields' => [ 'title^3', 'description' ],
+                                    ]] : false,
+                                ])
+                            ),
+                        ]
+                    ],
+                ],
+            ]);
+            // Получаем наши пересечения
+            $ids = array_column($response['hits']['hits'], '_id');
+            // Если ничего не нашли, возвращаем пустой Paginator
+            if (!$ids) {
+                return new LengthAwarePaginator([], 0, $perPage, $page);
+            }
+            // Если нашли пересечения, то выбираем их.
+            $items = Book::active()
+                ->with(['author', 'genre'])
+                ->whereIn('id', $ids)
+                ->orderBy(new Expression('FIELD(id,' . implode(',', $ids) . ')'))
+                ->get();
+            // Возвращаем заполненный Paginator
+            return new LengthAwarePaginator($items, $response['hits']['total'], $perPage, $page);
+        }
+</pre>
+<p>Таким образом мы организовали поиск с помощью elasticsearch.</p>
+<hr>
 
 
 
