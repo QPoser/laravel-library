@@ -2,6 +2,7 @@
 
 namespace App\Entities\Library;
 
+use App\Entities\Library\Book\Appeal;
 use App\Entities\Library\Book\Author;
 use App\Entities\Library\Book\Genre;
 use App\Entities\Library\Book\Review;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Book
+ * @property int $id
  * @property string $title
  * @property string $description
  * @property string $file_path
@@ -62,6 +64,11 @@ class Book extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class, 'book_id', 'id');
+    }
+
+    public function appeals()
+    {
+        return $this->hasMany(Appeal::class, 'book_id', 'id');
     }
 
     public function setActive(): void

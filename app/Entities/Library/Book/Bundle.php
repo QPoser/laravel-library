@@ -14,26 +14,26 @@ class Bundle extends Model
         'title', 'description', 'user_id',
     ];
 
-    public static function new(string $title, string $description, int $user_id)
+    public static function new(string $title, string $description, User $user)
     {
         return self::create([
             'title' => $title,
             'description' => $description,
-            'user_id' => $user_id,
+            'user_id' => $user->id,
         ]);
     }
 
-    public function addToBundle($id): void
+    public function addToBundle($book): void
     {
-        if ($this->hasInBundle($id)) {
+        if ($this->hasInBundle($book->id)) {
             throw new \DomainException('This book is already added to bundle.');
         }
-        $this->books()->attach($id);
+        $this->books()->attach($book->id);
     }
 
-    public function removeFromBundle($id): void
+    public function removeFromBundle($book): void
     {
-        $this->books()->detach($id);
+        $this->books()->detach($book->id);
     }
 
     public function hasInBundle($id): bool

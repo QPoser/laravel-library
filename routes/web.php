@@ -29,6 +29,10 @@ Route::group(
         Route::post('/books/{book}/set_active', 'BookController@setActive')->name('books.set-active');
         Route::post('/books/{book}/set_inactive', 'BookController@setInactive')->name('books.set-inactive');
 
+        Route::get('/appeals', 'AppealController@index')->name('appeals.index');
+        Route::post('/appeals/{appeal}/accept', 'AppealController@accept')->name('appeals.accept');
+        Route::post('/appeals/{appeal}/cancel', 'AppealController@cancel')->name('appeals.cancel');
+
         // Route::resource('bundles', 'BundleController');
         Route::resource('users', 'UserController');
   }
@@ -85,6 +89,8 @@ Route::group(
         Route::get('/', 'BookController@index')->name('books.home');
         Route::get('/{book}', 'BookController@show')->name('books.show');
         Route::post('/{book}/review', 'Book\ReviewController@store')->name('books.review.add');
+        Route::get('/{book}/appeal', 'BookController@addAppeal')->name('books.appeal.add');
+        Route::post('/{book}/appeal', 'BookController@storeAppeal')->name('books.appeal.store');
     }
 );
 

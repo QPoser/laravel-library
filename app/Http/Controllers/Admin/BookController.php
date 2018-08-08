@@ -158,4 +158,9 @@ class BookController extends Controller
 
         return redirect()->route('admin.books.show', $book)->with('success', 'Success! This book is inactive!');
     }
+
+    public function addAppeal(Book $book)
+    {
+
+    }
 }

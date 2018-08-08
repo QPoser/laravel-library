@@ -110,6 +110,13 @@ Breadcrumbs::register('admin.users.create', function (BreadcrumbsGenerator $crum
     $crumbs->push('Create user', route('admin.users.create'));
 });
 
+// Admin appeals
+
+Breadcrumbs::register('admin.appeals.index', function (BreadcrumbsGenerator $crumbs) {
+   $crumbs->parent('admin.home');
+   $crumbs->push('Appeals', route('admin.appeals.index'));
+});
+
 // Auth
 
 Breadcrumbs::register('login', function (BreadcrumbsGenerator $crumbs) {
@@ -205,6 +212,13 @@ Breadcrumbs::register('library.bundles.show', function (BreadcrumbsGenerator $cr
 Breadcrumbs::register('library.users.show', function (BreadcrumbsGenerator $crumbs, User $user) {
     $crumbs->parent('library.books.home');
     $crumbs->push($user->name, route('library.users.show', $user));
+});
+
+// Appeals
+
+Breadcrumbs::register('library.books.appeal.add', function (BreadcrumbsGenerator $crumbs, Book $book) {
+    $crumbs->parent('library.books.show', $book);
+    $crumbs->push('New appeal', route('library.books.appeal.add', $book));
 });
 
 

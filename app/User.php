@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Entities\Library\Book;
+use App\Entities\Library\Book\Appeal;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Str;
@@ -142,6 +143,11 @@ class User extends Authenticatable
     public function bundles()
     {
         return $this->hasMany(Book\Bundle::class, 'user_id', 'id');
+    }
+
+    public function appeals()
+    {
+        return $this->hasMany(Appeal::class, 'user_id', 'id');
     }
 
     public function subscribe(int $id)

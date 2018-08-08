@@ -10,6 +10,9 @@
     <p>User: <a href="{{ route('library.users.show', $book->user) }}">{{ $book->user->name }}</a></p>
     <p>{{ $book->description }}</p>
     <a href="{{ asset('storage/' . $book->file_path) }}" class="btn btn-success" download>Download</a>
+    @auth
+        <a href="{{ route('library.books.appeal.add', $book) }}" class="btn btn-danger">Add appeal</a>
+    @endauth
     <hr>
     @if(!$book->reviews->isEmpty())
         <h2>Reviews</h2>

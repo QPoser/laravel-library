@@ -30,7 +30,7 @@ class BundleController extends Controller
             'description' => 'required|string',
         ]);
 
-        $bundle = Bundle::new($request->title, $request->description, Auth::user()->id);
+        $bundle = Bundle::new($request->title, $request->description, Auth::user());
 
         return redirect()->route('cabinet.bundles.show', compact('bundle'));
     }
@@ -59,7 +59,7 @@ class BundleController extends Controller
         }
 
         try {
-            $bundle->addToBundle($book->id);
+            $bundle->addToBundle($book);
         } catch (\DomainException $e) {
             return redirect()->route('cabinet.bundles.show', $bundle)->with('error', $e->getMessage());
         }
@@ -70,7 +70,7 @@ class BundleController extends Controller
     public function removeFromBundle(Bundle $bundle, Book $book)
     {
         try {
-            $bundle->removeFromBundle($book->id);
+            $bundle->removeFromBundle($book);
         } catch (\DomainException $e) {
             return redirect()->route('cabinet.bundles.show', $bundle)->with('error', $e->getMessage());
         }

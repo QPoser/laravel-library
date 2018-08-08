@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Library;
 
 use App\Entities\Library\Book;
+use App\Entities\Library\Book\Appeal;
 use App\Entities\Library\Book\Author;
 use App\Entities\Library\Book\Bundle;
 use App\Entities\Library\Book\Genre;
@@ -29,22 +30,6 @@ class BookController extends Controller
             'author' => 'nullable|int',
         ]);
 
-//        $query = Book::active()->orderByDesc('id');
-//
-////        if (!empty($value = $request->get('search'))) {
-////            $query->where('title', 'like', '%' . $value . '%');
-////        }
-////
-////        if (!empty($value = $request->get('genre'))) {
-////            $query->where('genre_id', $value);
-////        }
-////
-////        if (!empty($value = $request->get('author'))) {
-////            $query->where('author_id', $value);
-////        }
-//
-//        $books = $query->paginate(20);
-//
         $genres = Genre::active()->get();
         $authors = Author::active()->get();
 
@@ -75,5 +60,26 @@ class BookController extends Controller
         }
 
         return view('library.books.show', compact('book', 'user', 'stars', 'bookStars'));
+    }
+
+    public function addAppeal(Book $book)
+    {
+        return view('library.books.appeal', compact('book'));
+    }
+
+    /**
+     * @param Request $request
+     * @param Book $book
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function storeAppeal(Request $request, Book $book)
+    {
+        $this->validate($request, [
+            'reason' => 'string|max:300',
+        ]);
+
+        $appeal = Appeal::new($request->get('reason'), $book, Auth::user());
+
+        return redirect()->route('library.books.show', compact('book'))->with('success', 'Your appeal has been successfully added.');
     }
 }
