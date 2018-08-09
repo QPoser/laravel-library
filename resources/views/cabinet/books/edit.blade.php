@@ -27,7 +27,7 @@
             <label for="genre" class="col-form-label">Genre</label>
             <select name="genre" id="genre">
                 @foreach ($genres as $genre)
-                    <option value="{{ $genre->id }}" {{ $genre->id == $book->genre_id ? 'selected' : '' }}>{{ $genre->name }}</option>
+                    <option value="{{ $genre->id }}" {{ $genre->id == $book->genre->id ? 'selected' : '' }}>{{ $genre->name }}</option>
                 @endforeach
             </select>
             @if ($errors->has('genre'))
@@ -39,11 +39,20 @@
             <label for="author" class="col-form-label">Author</label>
             <select name="author" id="author">
                 @foreach ($authors as $author)
-                    <option value="{{ $author->id }}" {{ $author->id == $book->author_id ? 'selected' : '' }}>{{ $author->name }}</option>
+                    <option value="{{ $author->id }}" {{ $author->id == $book->author->id ? 'selected' : '' }}>{{ $author->name }}</option>
                 @endforeach
             </select>
             @if ($errors->has('author'))
                 <span class="invalid-feedback"><strong>{{ $errors->first('author') }}</strong></span>
+            @endif
+        </div>
+
+        <div class="form-group">
+            <label for="file" class="col-form-label">File</label>
+            <p><a href="{{ asset('storage/' . $book->file_path) }}" download>Download</a></p>
+            <input id="file" class="form-control{{ $errors->has('file') ? ' is-invalid' : '' }}" name="file" type="file">
+            @if ($errors->has('file'))
+                <span class="invalid-feedback"><strong>{{ $errors->first('file') }}</strong></span>
             @endif
         </div>
 

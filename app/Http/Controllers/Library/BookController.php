@@ -7,6 +7,7 @@ use App\Entities\Library\Book\Appeal;
 use App\Entities\Library\Book\Author;
 use App\Entities\Library\Book\Bundle;
 use App\Entities\Library\Book\Genre;
+use App\Http\Requests\Library\Book\BookSearchRequest;
 use App\Services\Search\SearchService;
 use Auth;
 use Illuminate\Http\Request;
@@ -22,14 +23,8 @@ class BookController extends Controller
         $this->search = $search;
     }
 
-    public function index(Request $request)
+    public function index(BookSearchRequest $request)
     {
-        $this->validate($request, [
-            'search' => 'nullable|string',
-            'genre' => 'nullable|int',
-            'author' => 'nullable|int',
-        ]);
-
         $genres = Genre::active()->get();
         $authors = Author::active()->get();
 
@@ -46,20 +41,7 @@ class BookController extends Controller
 
         $stars = Book\Review::starsList();
 
-        $reviews = Book\Review::where(['book_id' => $book->id])->get();
-        $starsCount = 0;
-
-        foreach ($reviews as $review) {
-            $starsCount += $review->stars;
-        }
-
-        $bookStars = 0;
-
-        if ($starsCount > 0) {
-            $bookStars = $starsCount / $reviews->count();
-        }
-
-        return view('library.books.show', compact('book', 'user', 'stars', 'bookStars'));
+        return view('library.books.show', compact('book', 'user', 'stars'));
     }
 
     public function addAppeal(Book $book)

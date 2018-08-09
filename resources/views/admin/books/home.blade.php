@@ -26,10 +26,10 @@
                     <div class="col-sm-2">
                         <div class="form-group">
                             <label for="author" class="col-form-label">Author</label>
-                            <select id="author" class="form-control" name="author_id">
+                            <select id="author" class="form-control" name="genre">
                                 <option value=""></option>
                                 @foreach ($authors as $author)
-                                    <option value="{{ $author->id }}" {{ request('author_id') == $author->id ? 'selected' : '' }}>{{ $author->name }}</option>
+                                    <option value="{{ $author->id }}" {{ request('genre') == $author->id ? 'selected' : '' }}>{{ $author->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -37,10 +37,10 @@
                     <div class="col-sm-2">
                         <div class="form-group">
                             <label for="genre" class="col-form-label">Genre</label>
-                            <select id="genre" class="form-control" name="genre_id">
+                            <select id="genre" class="form-control" name="genre">
                                 <option value=""></option>
                                 @foreach ($genres as $genre)
-                                    <option value="{{ $genre->id }}" {{ request('genre_id') == $genre->id ? 'selected' : '' }}>{{ $genre->name }}</option>
+                                    <option value="{{ $genre->id }}" {{ request('genre') == $genre->id ? 'selected' : '' }}>{{ $genre->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -123,4 +123,6 @@
             </tr>
         @endforeach
     </table>
+
+    {{ $books->setPath('books')->links() }}
 @endsection

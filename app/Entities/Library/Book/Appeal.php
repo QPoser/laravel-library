@@ -16,16 +16,6 @@ class Appeal extends Model
 
     protected $fillable = ['id', 'user_id', 'book_id', 'reason', 'status'];
 
-    public static function new(string $reason, Book $book, User $user)
-    {
-        return self::create([
-            'reason' => $reason,
-            'book_id' => $book->id,
-            'user_id' => $user->id,
-            'status' => self::STATUS_WAIT,
-        ]);
-    }
-
     public function isAccepted()
     {
         return $this->status === self::STATUS_ACCEPTED;
@@ -38,11 +28,19 @@ class Appeal extends Model
 
     public function accept()
     {
+        if ($this->isAccepted()) {
+            throw new \DomainException('This appeal has already been accepted.');
+        }
+
         $this->update(['status' => self::STATUS_ACCEPTED]);
     }
 
     public function cancel()
     {
+        if ($this->isCanceled()) {
+            throw new \DomainException('This appeal has already been canceled.');
+        }
+
         $this->update(['status' => self::STATUS_CANCELED]);
     }
 

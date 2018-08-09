@@ -12,6 +12,7 @@ namespace App\Services\Search;
 use App\Entities\Library\Book;
 use App\Entities\Library\Book\Author;
 use App\Entities\Library\Book\Genre;
+use App\Http\Requests\Library\Book\BookSearchRequest;
 use Elasticsearch\Client;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Query\Expression;
@@ -25,6 +26,35 @@ class SearchService
     public function __construct(Client $client)
     {
         $this->client = $client;
+    }
+
+    public function searchByAdmin(Request $request, int $perPage, int $page = 1): Paginator
+    {
+        $query = Book::orderByDesc('id');
+
+        if (!empty($value = $request->get('id'))) {
+            $query->where('id', $value);
+        }
+
+        if (!empty($value = $request->get('title'))) {
+            $query->where('title', 'like', '%' . $value . '%');
+        }
+
+        if (!empty($value = $request->get('author_id'))) {
+            $query->where('author_id', $value);
+        }
+
+        if (!empty($value = $request->get('genre_id'))) {
+            $query->where('genre_id', $value);
+        }
+
+        if (!empty($value = $request->get('status'))) {
+            $query->where('status', $value);
+        }
+
+        $books = $query->get();
+
+        return new LengthAwarePaginator($books->forPage($page, $perPage), $books->count(), $perPage, $page);
     }
 
     public function search(Request $request, int $perPage, int $page): Paginator
@@ -80,7 +110,7 @@ class SearchService
             ->orderBy(new Expression('FIELD(id,' . implode(',', $ids) . ')'))
             ->get();
 
-        return new LengthAwarePaginator($items, $response['hits']['total'], $perPage, $page);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $response['hits']['total'], $perPage, $page);
     }
 
 }

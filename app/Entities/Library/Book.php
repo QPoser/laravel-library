@@ -33,17 +33,28 @@ class Book extends Model
 
     protected $table = 'books';
 
-    public static function new(string $title, string $description, int $author, int $genre, int $user, string $file_path, bool $isActive = false): self
+    public static function statusList()
     {
-        return self::create([
-           'title' => $title,
-           'description' => $description,
-           'author_id' => $author,
-           'genre_id' => $genre,
-           'user_id' => $user,
-           'file_path' => $file_path,
-           'status' => $isActive ? self::STATUS_ACTIVE : self::STATUS_WAIT,
-        ]);
+        return [
+            Book::STATUS_WAIT,
+            Book::STATUS_ACTIVE,
+            Book::STATUS_CANCELED,
+        ];
+    }
+
+    public function appeal()
+    {
+        $starsCount = 0;
+
+        foreach ($this->reviews as $review) {
+            $starsCount += $review->stars;
+        }
+
+        if ($starsCount > 0) {
+            return $starsCount / $this->reviews->count();
+        }
+
+        return 0;
     }
 
     public function genre()

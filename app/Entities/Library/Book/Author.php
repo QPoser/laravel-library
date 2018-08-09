@@ -17,14 +17,6 @@ class Author extends Model
         'name', 'status',
     ];
 
-    public static function new(string $name, $active = false): self
-    {
-        return self::create([
-            'name' => $name,
-            'status' => $active ? self::STATUS_ACTIVE : self::STATUS_WAIT,
-        ]);
-    }
-
     public static function statusList()
     {
         return [

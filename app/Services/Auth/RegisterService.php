@@ -40,10 +40,8 @@ class RegisterService
         $this->dispatcher->dispatch(new Registered($user));
     }
 
-    public function verify($id): void
+    public function verify(User $user): void
     {
-        /** @var User $user */
-        $user = User::findOrFail($id);
         $user->verify();
 
         $this->mailer->to($user->email)->send(new VerifyMail($user));

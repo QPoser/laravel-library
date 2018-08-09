@@ -5,43 +5,37 @@ namespace App\Http\Controllers\Admin;
 use App\Entities\Library\Book;
 use App\Entities\Library\Book\Author;
 use App\Entities\Library\Book\Genre;
+use App\Http\Requests\Library\Book\BookCreateRequest;
+use App\Http\Requests\Library\Book\BookUpdateRequest;
+use App\Services\Library\BookService;
+use App\Services\Search\SearchService;
 use Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class BookController extends Controller
 {
+
+    /**
+     * @var SearchService
+     */
+    private $service;
+    /**
+     * @var BookService
+     */
+    private $bookService;
+
+    public function __construct(SearchService $service, BookService $bookService)
+    {
+        $this->service = $service;
+        $this->bookService = $bookService;
+    }
+
     public function index(Request $request)
     {
-        $query = Book::orderByDesc('id');
+        $books = $this->service->searchByAdmin($request, 30, $request->get('page', 1));
 
-        if (!empty($value = $request->get('id'))) {
-            $query->where('id', $value);
-        }
-
-        if (!empty($value = $request->get('title'))) {
-            $query->where('title', 'like', '%' . $value . '%');
-        }
-
-        if (!empty($value = $request->get('author_id'))) {
-            $query->where('author_id', $value);
-        }
-
-        if (!empty($value = $request->get('genre_id'))) {
-            $query->where('genre_id', $value);
-        }
-
-        if (!empty($value = $request->get('status'))) {
-            $query->where('status', $value);
-        }
-
-        $books = $query->get();
-
-        $statuses = [
-            Book::STATUS_ACTIVE,
-            Book::STATUS_WAIT,
-            Book::STATUS_CANCELED,
-        ];
+        $statuses = Book::statusList();
 
         $authors = Author::all();
         $genres = Genre::all();
@@ -65,22 +59,9 @@ class BookController extends Controller
         return view('admin.books.create', compact('genres', 'authors'));
     }
 
-    public function store(Request $request)
+    public function store(BookCreateRequest $request)
     {
-        $this->validate($request, [
-            'title' => 'required|string|max:255|unique:books',
-            'description' => 'required|string',
-            'author_id' => 'required|integer',
-            'genre_id' => 'required|integer',
-            'file' => 'required|mimes:txt,doc,docx,fb2,pdf',
-        ]);
-
-        $author = Author::findOrFail($request->author_id);
-        $genre = Author::findOrFail($request->genre_id);
-
-        $path = $request->file('file')->store('books', 'public');
-
-        $book = Book::new($request->title, $request->description, $author->id, $genre->id, Auth::user()->id, $path, true);
+        $book = $this->bookService->create($request, Auth::user(), true);
 
         return redirect()->route('admin.books.show', $book)->with('success', 'Book successfully created!');
     }
@@ -98,35 +79,16 @@ class BookController extends Controller
         return view('admin.books.edit', compact('book', 'authors', 'genres'));
     }
 
-    public function update(Request $request, Book $book)
+    public function update(BookUpdateRequest $request, Book $book)
     {
-        $this->validate($request, [
-            'title' => 'required|string|max:255|unique:books,id,' . $book->id,
-            'description' => 'required|string',
-            'author_id' => 'required|integer',
-            'genre_id' => 'required|integer',
-            'file' => 'mimes:txt,doc,docx,fb2,pdf',
-        ]);
-
-        $author = Author::findOrFail($request->author_id);
-        $genre = Author::findOrFail($request->genre_id);
-
-        $path = false;
-
-        if ($request->has('file')) {
-            $path = $request->file('file')->store('books', 'public');
-        }
-
-        $file_path = $path ? ['file_path' => $path] : [];
-
-        $book->update($request->only('title', 'description', 'author_id', 'genre_id', 'file') + $file_path);
+        $this->bookService->update($request, $book);
 
         return redirect()->route('admin.books.show', $book)->with('success', 'Book successfully edited!');
     }
 
     public function destroy(Book $book)
     {
-        $book->delete();
+        $this->bookService->remove($book);
 
         return redirect()->route('admin.books.index')->with('success', 'Book ' . $book->title . ' is successfully deleted.');
     }
@@ -134,13 +96,7 @@ class BookController extends Controller
     public function setActive(Book $book)
     {
         try {
-            $book->setActive();
-            if (!$book->author->isActive()) {
-                $book->author->setActive();
-            }
-            if (!$book->genre->isActive()) {
-                $book->genre->setActive();
-            }
+            $this->bookService->activate($book);
         } catch (\DomainException $e) {
             return redirect()->route('admin.books.show', $book)->with('error', $e->getMessage());
         }
@@ -151,16 +107,11 @@ class BookController extends Controller
     public function setInactive(Book $book)
     {
         try {
-            $book->setInactive();
+            $this->bookService->deactivate($book);
         } catch (\DomainException $e) {
             return redirect()->route('admin.books.show', $book)->with('error', $e->getMessage());
         }
 
         return redirect()->route('admin.books.show', $book)->with('success', 'Success! This book is inactive!');
-    }
-
-    public function addAppeal(Book $book)
-    {
-
     }
 }

@@ -5,13 +5,25 @@ namespace App\Http\Controllers\Cabinet;
 use App\Entities\Library\Book;
 use App\Entities\Library\Book\Author;
 use App\Entities\Library\Book\Genre;
+use App\Http\Requests\Library\Book\BookCreateRequest;
+use App\Http\Requests\Library\Book\BookUpdateRequest;
+use App\Services\Library\BookService;
 use Auth;
 use Gate;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class BookController extends Controller
 {
+    /**
+     * @var BookService
+     */
+    private $service;
+
+    public function __construct(BookService $service)
+    {
+        $this->service = $service;
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -23,46 +35,18 @@ class BookController extends Controller
 
     public function create()
     {
-        $authors = Author::where(['status' => Author::STATUS_ACTIVE])->get();
+        $authors = Author::active()->get();
 
-        $genres = Genre::where(['status' => Genre::STATUS_ACTIVE])->get();
+        $genres = Genre::active()->get();
 
         $user = Auth::user();
 
         return view('cabinet.books.create', compact('user', 'genres', 'authors'));
     }
 
-    public function store(Request $request)
+    public function store(BookCreateRequest $request)
     {
-        $authorValidate = [
-            'author' => is_string($request->author) ? 'required|string' : 'required|integer',
-        ];
-
-        $genreValidate = [
-            'genre' => is_string($request->genre) ? 'required|string' : 'required|integer',
-        ];
-
-        $this->validate($request, array_merge([
-           'title' => 'required|string|max:255|unique:books',
-           'description' => 'required|string',
-           'file' => 'required|mimes:txt,doc,docx,fb2,pdf',
-        ], $authorValidate, $genreValidate));
-
-        if (is_string($request->author)) {
-            $author = Author::new($request->author);
-        } else {
-            $author = Author::findOrFail($request->author);
-        }
-
-        if (is_string($request->genre)) {
-            $genre = Genre::new($request->genre);
-        } else {
-            $genre = Genre::findOrFail($request->genre);
-        }
-
-        $path = $request->file('file')->store('books', 'public');
-
-        $book = Book::new($request->title, $request->description, $author->id, $genre->id, Auth::user()->id, $path);
+        $book = $this->service->create($request, Auth::user());
 
         return redirect()->route('cabinet.books.show', $book);
     }
@@ -86,31 +70,20 @@ class BookController extends Controller
         return view('cabinet.books.edit', compact('book', 'genres', 'authors'));
     }
 
-    public function update(Request $request, Book $book)
+    public function update(BookUpdateRequest $request, Book $book)
     {
-        $authorValidate = [
-            'author' => is_string($request->author) ? 'required|string' : 'required|integer',
-        ];
+        $this->checkAccess($book);
 
-        $genreValidate = [
-            'genre' => is_string($request->genre) ? 'required|string' : 'required|integer',
-        ];
+        $this->service->update($request, $book);
 
-        $this->validate($request, array_merge([
-            'title' => 'required|string|max:255|unique:books,title,' . $book->id . ',id',
-            'description' => 'required|string',
-        ], $authorValidate, $genreValidate));
-
-        $book->update($request->only([
-            'title', 'description', 'author', 'genre',
-        ]));
+        return redirect()->route('cabinet.books.show', $book)->with('success', 'Book ' . $book->title . ' has been successfully updated.');
     }
 
     public function destroy(Book $book)
     {
         $this->checkAccess($book);
 
-        $book->delete();
+        $this->service->remove($book);
 
         return redirect()->route('cabinet.books.home');
     }

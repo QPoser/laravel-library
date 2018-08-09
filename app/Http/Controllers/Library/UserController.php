@@ -27,7 +27,7 @@ class UserController extends Controller
     public function subscribe(User $writer, User $subscriber)
     {
         try {
-            $writer->subscribe($subscriber->id);
+            $writer->subscribe($subscriber);
         } catch (\DomainException $e) {
             return redirect()->route('library.users.show', $writer)->with('error', $e->getMessage());
         }
@@ -38,7 +38,7 @@ class UserController extends Controller
     public function unsubscribe(User $writer, User $subscriber)
     {
         try {
-            $writer->unsubscribe($subscriber->id);
+            $writer->unsubscribe($subscriber);
         } catch (\DomainException $e) {
             return redirect()->route('library.users.show', $writer)->with('error', $e->getMessage());
         }

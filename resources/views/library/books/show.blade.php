@@ -2,8 +2,8 @@
 
 @section('content')
     <h1>{{ $book->title }}</h1>
-    @if ($bookStars > 0)
-        <p>Stars: {{ $bookStars }}</p>
+    @if ($book->appeal() > 0)
+        <p>Stars: {{ $book->appeal() }}</p>
     @endif
     <p>Genre: {{ $book->genre->name }}</p>
     <p>Author: {{ $book->author->name }}</p>

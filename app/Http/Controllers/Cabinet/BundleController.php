@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cabinet;
 
 use App\Entities\Library\Book;
 use App\Entities\Library\Book\Bundle;
+use App\Http\Requests\Library\BundleRequest;
 use Auth;
 use Gate;
 use Illuminate\Http\Request;
@@ -23,13 +24,8 @@ class BundleController extends Controller
         return view('cabinet.bundles.create');
     }
 
-    public function store(Request $request)
+    public function store(BundleRequest $request)
     {
-        $this->validate($request, [
-            'title' => 'required|string|max:100',
-            'description' => 'required|string',
-        ]);
-
         $bundle = Bundle::new($request->title, $request->description, Auth::user());
 
         return redirect()->route('cabinet.bundles.show', compact('bundle'));
@@ -40,16 +36,6 @@ class BundleController extends Controller
         $user = Auth::user();
 
         return view('cabinet.bundles.show', compact('bundle', 'user'));
-    }
-
-    public function edit(Bundle $bundle)
-    {
-
-    }
-
-    public function update(Request $request, Bundle $bundle)
-    {
-
     }
 
     public function addToBundle(Bundle $bundle, Book $book)

@@ -3,6 +3,9 @@
 @section('content')
     @include('admin.users._nav')
     <h2>Edit user</h2>
+    @if ($errors->has('is_writer'))
+        <span class="invalid-feedback"><strong>{{ $errors->first('is_writer') }}</strong></span>
+    @endif
     <form action="{{ route('admin.users.update', $user) }}" method="POST">
         @csrf
         @method('PUT')
@@ -36,8 +39,8 @@
         </div>
 
         <div class="form-group">
+            <input type="checkbox" id="is_writer" class="form-check-input {{ $errors->has('is_writer') ? ' is-invalid' : '' }}" name="is_writer" {{ old('is_writer', $user->is_writer) ? 'checked' : '' }}>
             <label for="is_writer" class="col-form-label">Is writer</label>
-            <input type="checkbox" id="is_writer" class="form-check{{ $errors->has('is_writer') ? ' is-invalid' : '' }}" name="is_writer" {{ old('is_writer', $user->is_writer) ? 'checked' : '' }}>
             @if ($errors->has('is_writer'))
                 <span class="invalid-feedback"><strong>{{ $errors->first('is_writer') }}</strong></span>
             @endif

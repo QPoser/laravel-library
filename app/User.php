@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
  * @property string $email
  * @property string $status
  */
+
 class User extends Authenticatable
 {
     public const STATUS_WAIT = 'wait';
@@ -36,19 +37,6 @@ class User extends Authenticatable
     protected $casts = [
         'is_writer' => 'boolean',
     ];
-
-    public static function new(string $name, string $email, string $role, bool $isWriter = false)
-    {
-        return static::create([
-            'name' => $name,
-            'email' => $email,
-            'password' => bcrypt('secret'),
-            'verify_code' => Str::uuid(),
-            'status' => self::STATUS_ACTIVE,
-            'role' => $role,
-            'is_writer' => $isWriter,
-        ]);
-    }
 
     public static function register(string $name, string $email, string $password, bool $isWriter = false): self
     {
@@ -150,19 +138,19 @@ class User extends Authenticatable
         return $this->hasMany(Appeal::class, 'user_id', 'id');
     }
 
-    public function subscribe(int $id)
+    public function subscribe(User $user)
     {
         $this->defendWriter();
-        if ($this->hasInSubscribers($id)) {
+        if ($this->hasInSubscribers($user->id)) {
             throw new \DomainException('This user is already signed up');
         }
-        $this->subscribers()->attach($id);
+        $this->subscribers()->attach($user->id);
     }
 
-    public function unsubscribe(int $id)
+    public function unsubscribe(User $user)
     {
         $this->defendWriter();
-        $this->subscribers()->detach($id);
+        $this->subscribers()->detach($user->id);
     }
 
     public function hasInSubscribers(int $id)

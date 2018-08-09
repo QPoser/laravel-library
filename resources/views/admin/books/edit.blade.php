@@ -25,7 +25,7 @@
 
         <div class="form-group">
             <label for="author" class="col-form-label">Author</label>
-            <select name="author_id" id="author" required>
+            <select name="genre" id="author" required>
                 @foreach ($authors as $author)
                     <option value="{{ $author->id }}" {{ old('author', $book->author->id) == $author->id ? 'selected' : '' }}>{{ $author->name }}</option>
                 @endforeach
@@ -37,7 +37,7 @@
 
         <div class="form-group">
             <label for="genre" class="col-form-label">Genre</label>
-            <select name="genre_id" id="genre" required>
+            <select name="genre" id="genre" required>
                 @foreach ($genres as $genre)
                     <option value="{{ $genre->id }}" {{ old('genre', $book->genre->id) == $genre->id ? 'selected' : '' }}>{{ $genre->name }}</option>
                 @endforeach
