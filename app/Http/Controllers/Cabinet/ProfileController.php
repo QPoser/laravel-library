@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Cabinet;
 
+use App\Http\Requests\User\ProfileRequest;
+use App\Services\Library\UserService;
 use App\User;
 use Auth;
 use Illuminate\Http\Request;
@@ -10,6 +12,16 @@ use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
+    /**
+     * @var UserService
+     */
+    private $service;
+
+    public function __construct(UserService $service)
+    {
+        $this->service = $service;
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -24,31 +36,17 @@ class ProfileController extends Controller
         return view('cabinet.profile.edit', compact('user'));
     }
 
-    public function update(Request $request)
+    public function update(ProfileRequest $request)
     {
-        $this->validate($request, [
-            'name' => 'required|string|max:255',
-            'personal_photo' => 'mimes:jpeg,png',
-        ]);
-
-        $user = Auth::user();
-
-        if ($request->hasFile('personal_photo') && $request->file('personal_photo')->isValid()) {
-            $path = $request->file('personal_photo')->store('avatars', 'public');
-            $user->update($request->only('name') + ['personal_photo' => $path]);
-        } else {
-            $user->update($request->only('name'));
-        }
+        $this->service->updateProfile($request, Auth::user());
 
         return redirect()->route('cabinet.profile.home');
     }
 
     public function becomeWriter()
     {
-        $user = Auth::user();
-
         try {
-            $user->becomeWriter();
+            $this->service->becomeWriter(Auth::user());
         } catch (\DomainException $e) {
             return redirect()->route('cabinet.profile.home')->with('error', $e->getMessage());
         }
@@ -58,10 +56,8 @@ class ProfileController extends Controller
 
     public function becomeNotWriter()
     {
-        $user = Auth::user();
-
         try {
-            $user->becomeNotWriter();
+            $this->service->becomeNotWriter(Auth::user());
         } catch (\DomainException $e) {
             return redirect()->route('cabinet.profile.home')->with('error', $e->getMessage());
         }

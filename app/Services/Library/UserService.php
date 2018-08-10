@@ -9,6 +9,7 @@
 namespace App\Services\Library;
 
 
+use App\Http\Requests\User\ProfileRequest;
 use App\Http\Requests\User\UserCreateForm;
 use App\Http\Requests\User\UserEditRequest;
 use App\User;
@@ -43,6 +44,26 @@ class UserService
     public function update(UserEditRequest $request, User $user)
     {
         $user->update($request->only('name', 'email', 'role', 'is_writer'));
+    }
+
+    public function updateProfile(ProfileRequest $request, User $user)
+    {
+        if ($request->hasFile('personal_photo') && $request->file('personal_photo')->isValid()) {
+            $path = $request->file('personal_photo')->store('avatars', 'public');
+            $user->update($request->only('name') + ['personal_photo' => $path]);
+        } else {
+            $user->update($request->only('name'));
+        }
+    }
+
+    public function becomeWriter(User $user)
+    {
+        $user->becomeWriter();
+    }
+
+    public function becomeNotWriter(User $user)
+    {
+        $user->becomeNotWriter();
     }
 
     public function remove(User $user)

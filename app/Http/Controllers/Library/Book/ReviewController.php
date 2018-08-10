@@ -4,19 +4,27 @@ namespace App\Http\Controllers\Library\Book;
 
 use App\Entities\Library\Book;
 use App\Entities\Library\Book\Review;
+use App\Http\Requests\Library\ReviewRequest;
+use App\Services\Library\BookService;
+use Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class ReviewController extends Controller
 {
-    public function store(Request $request, Book $book)
-    {
-        $this->validate($request, [
-             'review' => 'required|string',
-             'stars' => 'required|integer|min:1|max:5',
-        ]);
+    /**
+     * @var BookService
+     */
+    private $bookService;
 
-        Review::new($request->review, $request->stars, \Auth::user()->id, $book->id);
+    public function __construct(BookService $bookService)
+    {
+        $this->bookService = $bookService;
+    }
+
+    public function store(ReviewRequest $request, Book $book)
+    {
+        $this->bookService->addReview($book, Auth::user(), $request);
 
         return redirect()->route('library.books.show', $book)->with('success', 'Your review has been successfully added.');
     }

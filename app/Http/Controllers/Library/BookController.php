@@ -49,11 +49,7 @@ class BookController extends Controller
         return view('library.books.appeal', compact('book'));
     }
 
-    /**
-     * @param Request $request
-     * @param Book $book
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
+
     public function storeAppeal(Request $request, Book $book)
     {
         $this->validate($request, [

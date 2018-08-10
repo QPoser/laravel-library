@@ -28,17 +28,6 @@ class Review extends Model
         ];
     }
 
-    public static function new(string $review, int $stars, int $user_id, int $book_id)
-    {
-        return self::create([
-            'review' => $review,
-            'stars' => $stars,
-            'user_id' => $user_id,
-            'book_id' => $book_id,
-            'status' => self::STATUS_WAIT,
-        ]);
-    }
-
     public function book()
     {
         return $this->belongsTo(Book::class, 'book_id', 'id');

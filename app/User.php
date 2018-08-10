@@ -111,6 +111,10 @@ class User extends Authenticatable
 
     public function becomeWriter()
     {
+        if ($this->isWriter()) {
+            throw new \DomainException('You are already a writer');
+        }
+
         $this->update(
             ['is_writer' => true]
         );
@@ -118,6 +122,10 @@ class User extends Authenticatable
 
     public function becomeNotWriter()
     {
+        if (!$this->isWriter()) {
+            throw new \DomainException('You are not a writer');
+        }
+
         $this->update(
             ['is_writer' => false]
         );

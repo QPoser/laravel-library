@@ -12,8 +12,10 @@ namespace App\Services\Library;
 use App\Entities\Library\Book;
 use App\Entities\Library\Book\Author;
 use App\Entities\Library\Book\Genre;
+use App\Entities\Library\Book\Review;
 use App\Http\Requests\Library\Book\BookCreateRequest;
 use App\Http\Requests\Library\Book\BookUpdateRequest;
+use App\Http\Requests\Library\ReviewRequest;
 use App\User;
 use Auth;
 use DB;
@@ -86,6 +88,23 @@ class BookService
             $file_path = $path ? ['file_path' => $path] : [];
 
             $book->update($request->only('title', 'description', 'author', 'genre', 'file') + $file_path);
+        });
+    }
+
+    public function addReview(Book $book, User $user, ReviewRequest $request)
+    {
+        DB::transaction(function () use ($request, $book, $user) {
+
+            $review = Review::make([
+                'review' => $request->review,
+                'stars' => $request->stars,
+                'user_id' => $user->id,
+                'book_id' => $book->id,
+                'status' => Review::STATUS_WAIT,
+            ]);
+
+            $review->saveOrFail();
+
         });
     }
 
