@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cabinet;
 
 use App\Entities\Library\Book;
 use App\Entities\Library\Book\Bundle;
+use App\Events\Library\BundleCreated;
 use App\Http\Requests\Library\BundleRequest;
 use Auth;
 use Gate;
@@ -27,6 +28,8 @@ class BundleController extends Controller
     public function store(BundleRequest $request)
     {
         $bundle = Bundle::new($request->title, $request->description, Auth::user());
+
+        event(new BundleCreated($bundle));
 
         return redirect()->route('cabinet.bundles.show', compact('bundle'));
     }

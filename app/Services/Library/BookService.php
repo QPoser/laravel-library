@@ -13,6 +13,7 @@ use App\Entities\Library\Book;
 use App\Entities\Library\Book\Author;
 use App\Entities\Library\Book\Genre;
 use App\Entities\Library\Book\Review;
+use App\Events\Library\BookCreated;
 use App\Http\Requests\Library\Book\BookCreateRequest;
 use App\Http\Requests\Library\Book\BookUpdateRequest;
 use App\Http\Requests\Library\ReviewRequest;
@@ -67,6 +68,8 @@ class BookService
             ]);
 
             $book->saveOrFail();
+
+            event(new BookCreated($book));
 
             return $book;
         });

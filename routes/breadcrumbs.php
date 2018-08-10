@@ -132,7 +132,7 @@ Breadcrumbs::register('password.request', function (BreadcrumbsGenerator $crumbs
 });
 
 Breadcrumbs::register('password.reset', function (BreadcrumbsGenerator $crumbs) {
-    $crumbs->push('Reset password', route('password.reset'));
+    $crumbs->push('Reset password', route('password.request'));
 });
 
 // Cabinet

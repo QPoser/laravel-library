@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Events\Appeal\AppealEvent;
+use App\Events\Library\BookCreated;
+use App\Events\Library\BundleCreated;
+use App\Listeners\Library\BookCreatedListener;
+use App\Listeners\Library\BundleCreatedListener;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -13,8 +18,11 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\Event' => [
-            'App\Listeners\EventListener',
+        BookCreated::class => [
+            BookCreatedListener::class,
+        ],
+        BundleCreated::class => [
+            BundleCreatedListener::class,
         ],
     ];
 
