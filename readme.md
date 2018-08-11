@@ -35,7 +35,7 @@
     <li><a href="#appeals">Обращения к модераторам, блокировка нежелательного контента</a></li>
     <li><a href="#pagination">Пагинация</a></li>
     <li><a href="#events">Оповещение пользователей о новой книге/бандле от независимого разработчика (Работа с событиями).</a></li>
-    <li><b>API для работы с онлайн-библиотекой (планируется)</b></li>
+    <li><a href="#api"><b>API для работы с онлайн-библиотекой</b></api></li>
 </ul>
 
 <hr>
@@ -1320,6 +1320,29 @@ Laravel Passport. Установим его через composer: </p>
 </pre>
 <p>И теперь для доступа по токену - используйте access_token. Для этого передайте ещё один заголовок при запросе: Authorization: Bearer *access_token*.</p>
 <p>В свою очередь refresh_token нужен для того, чтобы перегенирировать access_token при его истечении.</p>
+<b>Своя сериализация сущностей</b>
+<p>Для того, чтобы самому контролировать какие поля вы хотите выдать в ответе, нужно возвращать не саму модель, а преобразованный массив. 
+Для этой задачи в Laravel есть специальная сущность - Resource. Например для профиля мы можем создать ресурс следующей командой:</p>
+<pre>php artisan make:resource "User\ProfileResource"</pre>
+<p>И после этого в методе toArray написать подобный код:</p>
+<pre>
+        public function toArray($request)
+        {
+            return [
+                'id' => $this->id,
+                'email' => $this->email,
+                'name' => $this->name,
+                'books' => array_map(function (array $book) {
+                    return [
+                        'id' => $book['id'],
+                        'title' => $book['title'],
+                    ];
+                }, $this->books->toArray()),
+            ];
+        }
+</pre>
+<p>Теперь осталось только вернуть в контроллере данный ресурс следующим образом:</p>
+<pre>return new ProfileResource($request->user());</pre>
 
 
 

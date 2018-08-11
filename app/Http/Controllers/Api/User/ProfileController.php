@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Requests\User\ProfileRequest;
+use App\Http\Resources\User\ProfileResource;
 use App\Services\Library\UserService;
 use App\User;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class ProfileController extends Controller
 
     public function show(Request $request)
     {
-        return $request->user();
+        return new ProfileResource($request->user());
     }
 
     public function update(ProfileRequest $request)
