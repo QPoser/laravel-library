@@ -1248,6 +1248,78 @@ class SearchServiceProvider extends ServiceProvider
 <p>А для вызова события воспользуйтесь вызовом следующего метода в любой части кода:</p>
 <pre>event(new EventName($args));</pre>
 <hr>
+<h3 id="api">API</h3>
+<p>Часто у больших сайтов возникает потребность в построении внешнего API. Например если вы хотите сделать мобильное приложение 
+для своего продукта, и вам нужно загружать информацию с сайта для этого приложения. В данном случае мы разберемся как сделать 
+такое API (REST API\JSON API) в Laravel для нашего сайта.</p>
+
+<b>Регистрация и логин</b>
+<p>Основа работы с API - Аутентификация. И сейчас мы разберемся как зарегистрироваться используя наше API.</p>
+<p>Для начала создадим новый контроллер в папке Api для регистрации пользователя:</p>
+<pre>php artsian make:controller "Api\Auth\RegisterController"</pre>
+<p>После чего добавляем в контроллер следующий метод:</p>
+<pre>
+    public function register(RegisterRequest $request)
+    {
+        $this->service->register($request); // RegisterService
+        return response()->json([
+                'success' => 'Check your email and click on the link to verify.',
+        ], Response::HTTP_CREATED);
+    }
+</pre>
+<p>Теперь нам нужно прописать путь, по которому будет производиться обращение к нашему контроллеру. И вот тут мы сталкиваемся с 
+таким отличием API от обычной части сайта, которая выводится в браузере, что нам при обращении к API методам не нужно большого количества 
+функционала, например нам не нужны сессии, куки и т.д. В случае с API нам нужно как можно более быстро отдать ответ на полученный запрос. 
+И в Laravel это уже предусмотрено, и для Api маршрутов применяются другие правила и подходы. И для указания таких маршрутов, их нужно 
+ записывать в файле routes/api.php:</p>
+ <pre>Route::post('/register', 'Api\RegisterController@register');</pre>
+<p>На этом регистрация закончена, вам нужно лишь передать поля name, email, password в формате JSON методом POST по пути /api/register. Но для того, чтобы 
+сайт принял ваши данные в формате JSON, передайте заголовок Content-Type: application/json. Тоже самое и для заголовка, который указывает 
+какой ответ вы ожидаете - Accept: application/json.</p>
+
+<hr>
+<p>Следующая часть нашего API - аутентификация на сайте. И для её реализации Laravel предоставляет нам следующий инструмент - 
+Laravel Passport. Установим его через composer: </p>
+<pre>composer require laravel/passport</pre>
+<p>Подбробнее о данном пакете вы можете почитать в <a href="https://laravel.com/docs/5.6/passport">официальной документации Laravel</a>.</p>
+<p>После установки данного пакета, нам нужно либо вручную перенести миграции из папки vendor/laravel/passport/database в папку наших миграций, либо 
+перенести их командой</p>
+<pre>php artisan vendor:publish --tag=passport-migrations</pre>
+<p>И после этого применить новые миграции, предварительно прописав в методе register провайдера AppServiceProvider следующую строчку: Passport::ignoreMigrations();.</p>
+<p>Теперь выполним следующую команду для работы с пакетом:</p>
+<pre>php artisan passport:install</pre>
+<p>И нам останется лишь добавить трейт Laravel\Passport\HasApiTokens в наш класс User. Теперь мы можем войти в систему следующим способом -
+нам нужно отправить следующие данные по адресу /oauth/token методом POST:</p>
+<pre>
+{
+    "grant_type": "password",
+    "client_id": 2,
+    "client_secret": "3f17eSN7PE7pLR67rwC4ug5T3bn0NOb5Ts6Qizum",
+    "username": "qposer@gmail.com",
+    "password": "secret1",
+    "scope": ""
+}
+</pre>
+<p>В данном контексте используйте client_id и client_secret - это данные, которые были выведены в консоли после выполнения команды passport:install, например у меня они были такие:</p>
+<pre>
+    Encryption keys generated successfully.
+    Personal access client created successfully.
+    Client ID: 1
+    Client Secret: HaguiVYDL66i7HGRmiWw1KsnAYCSHIZLt7H60Sn2
+    Password grant client created successfully.
+    Client ID: 2
+    Client Secret: 3f17eSN7PE7pLR67rwC4ug5T3bn0NOb5Ts6Qizum
+</pre>
+<p>В данном случае первый клиент отвечает за выпуск персональных токенов, а ко второму клиенту мы обращаемся для аутентификации по логину и паролю. 
+На этом этап аутентификации завершен. После обращения к /oauth/token при успешном обращении вы получите два токена - access_token и refresh token:</p>
+<pre>
+{"token_type":"Bearer",
+"expires_in":31536000,
+"access_token":"Длинный access_token",
+"refresh_token":"Не очень длинный refresh_token"}
+</pre>
+<p>И теперь для доступа по токену - используйте access_token. Для этого передайте ещё один заголовок при запросе: Authorization: Bearer *access_token*.</p>
+<p>В свою очередь refresh_token нужен для того, чтобы перегенирировать access_token при его истечении.</p>
 
 
 

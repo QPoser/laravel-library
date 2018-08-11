@@ -3,7 +3,7 @@
 
 Please refer to the following link:
 
-@component('mail::button', ['url' => route('register.verify', ['token' => $user->verify_token])])
+@component('mail::button', ['url' => route('register.verify', ['token' => $user->verify_code])])
     Verify Email
 @endcomponent
 

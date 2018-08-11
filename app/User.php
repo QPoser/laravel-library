@@ -7,6 +7,7 @@ use App\Entities\Library\Book\Appeal;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Str;
+use Laravel\Passport\HasApiTokens;
 
 /**
  * Class User
@@ -24,7 +25,7 @@ class User extends Authenticatable
     public const ROLE_USER = 'user';
     public const ROLE_ADMIN = 'admin';
 
-    use Notifiable;
+    use Notifiable, HasApiTokens;
 
     protected $fillable = [
         'name', 'email', 'password', 'status', 'verify_code', 'personal_photo', 'role', 'is_writer',
