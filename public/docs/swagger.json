@@ -1,0 +1,142 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Library API",
+        "description": "HTTP JSON API",
+        "version": "1.0.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/": {
+            "get": {
+                "tags": [
+                    "Info"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "API version",
+                        "schema": {
+                            "properties": {
+                                "version": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success response",
+                        "schema": {
+                            "$ref": "#/definitions/Profile"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": [],
+                        "OAuth2": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProfileEditRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success response"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": [],
+                        "OAuth2": []
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "ErrorModel": {
+            "required": [
+                "code",
+                "message"
+            ],
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Profile": {
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "books": {
+                    "properties": {
+                        "id": {
+                            "type": "integer"
+                        },
+                        "title": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "securityDefinitions": {
+        "OAuth2": {
+            "type": "oauth2",
+            "flow": "password",
+            "tokenUrl": "https://localhost:8080/oauth/token"
+        },
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

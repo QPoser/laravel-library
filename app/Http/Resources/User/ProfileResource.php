@@ -28,3 +28,17 @@ class ProfileResource extends JsonResource
         ];
     }
 }
+
+/**
+ * @SWG\Definition(
+ *     definition="Profile",
+ *     type="object",
+ *     @SWG\Property(property="id", type="integer"),
+ *     @SWG\Property(property="email", type="string"),
+ *     @SWG\Property(property="name", type="string"),
+ *     @SWG\Property(property="books", type="object",
+ *         @SWG\Property(property="id", type="integer"),
+ *         @SWG\Property(property="title", type="string"),
+ *     ),
+ * )
+ */

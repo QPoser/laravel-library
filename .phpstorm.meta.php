@@ -3,7 +3,7 @@ namespace PHPSTORM_META {
 
    /**
     * PhpStorm Meta file, to provide autocomplete information for PhpStorm
-    * Generated on 2018-08-11 05:31:09.
+    * Generated on 2018-08-11 11:58:11.
     *
     * @author Barry vd. Heuvel <barryvdh@gmail.com>
     * @see https://github.com/barryvdh/laravel-ide-helper
@@ -43,6 +43,8 @@ namespace PHPSTORM_META {
         'view.engine.resolver' => \Illuminate\View\Engines\EngineResolver::class,
         'Barryvdh\Debugbar\LaravelDebugbar' => \Barryvdh\Debugbar\LaravelDebugbar::class,
         'command.debugbar.clear' => \Barryvdh\Debugbar\Console\ClearCommand::class,
+        'League\OAuth2\Server\AuthorizationServer' => \League\OAuth2\Server\AuthorizationServer::class,
+        'League\OAuth2\Server\ResourceServer' => \League\OAuth2\Server\ResourceServer::class,
         'Elasticsearch\Client' => \Elasticsearch\Client::class,
         'blade.compiler' => \Illuminate\View\Compilers\BladeCompiler::class,
         'Illuminate\Console\Scheduling\Schedule' => \Illuminate\Console\Scheduling\Schedule::class,
@@ -186,6 +188,8 @@ namespace PHPSTORM_META {
         'view.engine.resolver' => \Illuminate\View\Engines\EngineResolver::class,
         'Barryvdh\Debugbar\LaravelDebugbar' => \Barryvdh\Debugbar\LaravelDebugbar::class,
         'command.debugbar.clear' => \Barryvdh\Debugbar\Console\ClearCommand::class,
+        'League\OAuth2\Server\AuthorizationServer' => \League\OAuth2\Server\AuthorizationServer::class,
+        'League\OAuth2\Server\ResourceServer' => \League\OAuth2\Server\ResourceServer::class,
         'Elasticsearch\Client' => \Elasticsearch\Client::class,
         'blade.compiler' => \Illuminate\View\Compilers\BladeCompiler::class,
         'Illuminate\Console\Scheduling\Schedule' => \Illuminate\Console\Scheduling\Schedule::class,
@@ -329,6 +333,8 @@ namespace PHPSTORM_META {
         'view.engine.resolver' => \Illuminate\View\Engines\EngineResolver::class,
         'Barryvdh\Debugbar\LaravelDebugbar' => \Barryvdh\Debugbar\LaravelDebugbar::class,
         'command.debugbar.clear' => \Barryvdh\Debugbar\Console\ClearCommand::class,
+        'League\OAuth2\Server\AuthorizationServer' => \League\OAuth2\Server\AuthorizationServer::class,
+        'League\OAuth2\Server\ResourceServer' => \League\OAuth2\Server\ResourceServer::class,
         'Elasticsearch\Client' => \Elasticsearch\Client::class,
         'blade.compiler' => \Illuminate\View\Compilers\BladeCompiler::class,
         'Illuminate\Console\Scheduling\Schedule' => \Illuminate\Console\Scheduling\Schedule::class,
@@ -472,6 +478,8 @@ namespace PHPSTORM_META {
         'view.engine.resolver' => \Illuminate\View\Engines\EngineResolver::class,
         'Barryvdh\Debugbar\LaravelDebugbar' => \Barryvdh\Debugbar\LaravelDebugbar::class,
         'command.debugbar.clear' => \Barryvdh\Debugbar\Console\ClearCommand::class,
+        'League\OAuth2\Server\AuthorizationServer' => \League\OAuth2\Server\AuthorizationServer::class,
+        'League\OAuth2\Server\ResourceServer' => \League\OAuth2\Server\ResourceServer::class,
         'Elasticsearch\Client' => \Elasticsearch\Client::class,
         'blade.compiler' => \Illuminate\View\Compilers\BladeCompiler::class,
         'Illuminate\Console\Scheduling\Schedule' => \Illuminate\Console\Scheduling\Schedule::class,
@@ -615,6 +623,8 @@ namespace PHPSTORM_META {
         'view.engine.resolver' => \Illuminate\View\Engines\EngineResolver::class,
         'Barryvdh\Debugbar\LaravelDebugbar' => \Barryvdh\Debugbar\LaravelDebugbar::class,
         'command.debugbar.clear' => \Barryvdh\Debugbar\Console\ClearCommand::class,
+        'League\OAuth2\Server\AuthorizationServer' => \League\OAuth2\Server\AuthorizationServer::class,
+        'League\OAuth2\Server\ResourceServer' => \League\OAuth2\Server\ResourceServer::class,
         'Elasticsearch\Client' => \Elasticsearch\Client::class,
         'blade.compiler' => \Illuminate\View\Compilers\BladeCompiler::class,
         'Illuminate\Console\Scheduling\Schedule' => \Illuminate\Console\Scheduling\Schedule::class,
@@ -758,6 +768,8 @@ namespace PHPSTORM_META {
         'view.engine.resolver' => \Illuminate\View\Engines\EngineResolver::class,
         'Barryvdh\Debugbar\LaravelDebugbar' => \Barryvdh\Debugbar\LaravelDebugbar::class,
         'command.debugbar.clear' => \Barryvdh\Debugbar\Console\ClearCommand::class,
+        'League\OAuth2\Server\AuthorizationServer' => \League\OAuth2\Server\AuthorizationServer::class,
+        'League\OAuth2\Server\ResourceServer' => \League\OAuth2\Server\ResourceServer::class,
         'Elasticsearch\Client' => \Elasticsearch\Client::class,
         'blade.compiler' => \Illuminate\View\Compilers\BladeCompiler::class,
         'Illuminate\Console\Scheduling\Schedule' => \Illuminate\Console\Scheduling\Schedule::class,
@@ -901,6 +913,8 @@ namespace PHPSTORM_META {
         'view.engine.resolver' => \Illuminate\View\Engines\EngineResolver::class,
         'Barryvdh\Debugbar\LaravelDebugbar' => \Barryvdh\Debugbar\LaravelDebugbar::class,
         'command.debugbar.clear' => \Barryvdh\Debugbar\Console\ClearCommand::class,
+        'League\OAuth2\Server\AuthorizationServer' => \League\OAuth2\Server\AuthorizationServer::class,
+        'League\OAuth2\Server\ResourceServer' => \League\OAuth2\Server\ResourceServer::class,
         'Elasticsearch\Client' => \Elasticsearch\Client::class,
         'blade.compiler' => \Illuminate\View\Compilers\BladeCompiler::class,
         'Illuminate\Console\Scheduling\Schedule' => \Illuminate\Console\Scheduling\Schedule::class,
